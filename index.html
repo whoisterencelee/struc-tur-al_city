@@ -23,29 +23,37 @@
 
 	<style>
 	div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
 	.hide {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
 	.unselectable {-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
+	input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
 	<!-- header -->
-	<div style="background:#003c2e;color:#b29f88;padding:1em;text-align:center;flex-direction:row;justify-content:space-evenly;padding-bottom:2em;">
+	<div style="background:#003c2e;color:#b29f88;padding:1em 0 0.5em 0;text-align:center;text-shadow:1px 1px 3px black;width:100%;">
 
-		<!--<img src='sustaincia.svg' alt="Sustaincia" style="width:96px;height:96px;box-shadow:0px 0px 5px 0px white;border-radius:1em;margin-right:1em;"></img><br />-->
+		<div style="flex-direction:row;width:100%;justify-content:space-evenly;">
+			<div style="flex-direction:row;">
+			<img style="height:6em;margin:0.5em;" src="./structural.svg" />
+			<div>
+			<div style="font-size:1.8em;">Structural.City</div>
+			<div style="font-size:3em;">營運方式</div>
+			</div>
+			</div>
 
-
-		<div style="flex-direction:row;">
-		<img style="height:6em;margin:0.5em;" src="./structural.svg" />
-		<div>
-		<div style="font-size:1.8em;">Structural.City</div>
-		<div style="font-size:3em;">營運方式</div>
+			<div>
+			<div style="font-size:1.25em;">智能城市物業管理</div>
+			<div style="font-size:1em;">Smart Urban Property Management</div>
+			</div>
 		</div>
-		</div>
 
-		<div>
-		<div style="font-size:1.25em;">智能城市物業管理系統</div>
-		<div style="font-size:1em;">Smart Urban Property Management System</div>
-		</div>
+		<form class="div" style="width:100%;flex-direction:row;margin:1em 0;">
+			<label>
+				<input name="buid" type="text" placeholder="Location 輸入位置">
+			</label>
+		</form>
 
 	</div>
 
@@ -94,6 +102,7 @@
 	</style>
 	-->
 
+
 <!-- hot list -->
 <div id="hotlist">
 
@@ -112,6 +121,7 @@
 	<script>
 	function toogle(){var c=event.currentTarget.parentNode.childNodes,cl=c.length;while(cl--){if(c[cl].style&&c[cl].style.display){if(c[cl]!=event.currentTarget)c[cl].style.display=''}}event.currentTarget.style.display='none'}
 	</script>
+</div>
 
 </body>
 
