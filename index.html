@@ -31,37 +31,21 @@
 	.div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
 	.hide {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
 	.unselectable {-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
-	input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
+	input[type=text]{border:0px;padding:.5em 1em;}
 	input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
+	.float {position:fixed;z-index:99999;}
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
 	<!-- header -->
-	<div style="background:#003c2e;color:#b29f88;padding:1em 0 0.5em 0;text-align:center;text-shadow:1px 1px 3px black;width:100%;">
-
-		<div style="flex-direction:row;width:100%;justify-content:space-evenly;">
-			<div style="flex-direction:row;">
-			<img style="height:6em;margin:0.5em;" src="./structural.svg" />
-			<div>
-			<div style="font-size:1.8em;">Structural.City</div>
-			<div style="font-size:3em;">營運方式</div>
-			</div>
-			</div>
-
-			<div>
-			<div style="font-size:1.25em;">智能城市物業管理</div>
-			<div style="font-size:1em;">Smart Urban Property Management</div>
-			</div>
-		</div>
-
-		<form class="div" style="width:100%;flex-direction:row;margin:1em 0;">
-			<label>
-				<input name="buid" type="text" placeholder="Location 輸入位置">
-			</label>
-		</form>
-
+	<div class="float" style="max-width:24em;width:85vw;right:0;">
+			<form style="width:100%;box-shadow:1px 1px 3px grey;margin:1em 0 0 0;">
+				<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
+					<span style="margin:.5em 1em;">Structural.City</span> 
+					<input style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 輸入位置">
+				</label>
+			</form>
 	</div>
-
 
 	<!-- banner -->
 	<!--
@@ -134,8 +118,9 @@
 	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
 
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-	    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+	    //attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 	    maxZoom: 18,
+	    minZoom: 2,
 	    id: 'mapbox/streets-v11',
 	    tileSize: 512,
 	    zoomOffset: -1,
