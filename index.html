@@ -45,16 +45,28 @@
 				<input style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="locate()">
 			</label>
 		</form>
+		<div style="background:white;margin:1em 0;box-shadow:1px 1px 3px grey;width:100%;">
+			This is a list
+		</div>
 	</div>
 
 	<script>
+	var places = []
+
 	function locate(){
+		places.forEach( place => place.marker.remove() )  // clear all markers first
+		delete places
+		places = []
+
 		fetch( "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent( event.target.value ) + "&format=geojson" )
 			.then( response => response.json() )
 			.then( data =>{
-				data.features.forEach( place =>{
-					marker = L.marker( [ place.geometry.coordinates[ 1 ] , place.geometry.coordinates[ 0 ] ] ).addTo( map );
-					console.log( place.geometry.coordinates )
+				data.features.forEach( feature =>{
+					places.push( { 
+						marker : L.marker( [ feature.geometry.coordinates[ 1 ] , feature.geometry.coordinates[ 0 ] ] ).addTo( map )
+					})
+					console.log( feature.geometry.coordinates )
+					// start building list
 				})
 			})
 	}
