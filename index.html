@@ -39,13 +39,26 @@
 
 	<!-- header -->
 	<div class="float" style="max-width:24em;width:85vw;right:0;">
-			<form style="width:100%;box-shadow:1px 1px 3px grey;margin:1em 0 0 0;">
-				<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
-					<span style="margin:.5em 1em;">Structural.City</span> 
-					<input style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 輸入位置">
-				</label>
-			</form>
+		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:1em 0 0 0;" onsubmit="return false">
+			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
+				<span style="margin:.5em 1em;">Structural.City</span> 
+				<input style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="locate()">
+			</label>
+		</form>
 	</div>
+
+	<script>
+	function locate(){
+		fetch( "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent( event.target.value ) + "&format=geojson" )
+			.then( response => response.json() )
+			.then( data =>{
+				data.features.forEach( place =>{
+					marker = L.marker( [ place.geometry.coordinates[ 1 ] , place.geometry.coordinates[ 0 ] ] ).addTo( map );
+					console.log( place.geometry.coordinates )
+				})
+			})
+	}
+	</script>
 
 	<!-- banner -->
 	<!--
