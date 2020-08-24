@@ -39,14 +39,21 @@
 
 	<!-- header -->
 	<div class="float" style="max-width:24em;width:85vw;right:0;">
-		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:1em 0 0 0;" onsubmit="return false">
+		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:2px 0;" onsubmit="return false">
 			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
 				<span style="margin:.5em 1em;">Structural.City</span> 
 				<input style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="locate()">
 			</label>
 		</form>
-		<div style="background:white;margin:1em 0;box-shadow:1px 1px 3px grey;width:100%;">
-			This is a list
+
+
+		<style>
+		.list-item { justify-content:left;padding:1em;border-bottom:solid 1px grey;width:100%;font-size:0.8em; }
+		.list-item div { flex-direction:row;width:100%;justify-content:space-between;}
+		.list-item div span { font-size:small; }
+		</style>
+
+		<div id="list" style="background:white;box-shadow:1px 1px 3px grey;width:100%;max-height:40vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;">
 		</div>
 	</div>
 
@@ -57,19 +64,33 @@
 		places.forEach( place => place.marker.remove() )  // clear all markers first
 		delete places
 		places = []
+		var list = ""
 
-		fetch( "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent( event.target.value ) + "&format=geojson" )
+		fetch( "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent( event.target.value )
+				+ "&format=geojson"
+				+ "&addressdetails=1"
+				)
 			.then( response => response.json() )
 			.then( data =>{
 				data.features.forEach( feature =>{
 					places.push( { 
 						marker : L.marker( [ feature.geometry.coordinates[ 1 ] , feature.geometry.coordinates[ 0 ] ] ).addTo( map )
 					})
-					console.log( feature.geometry.coordinates )
-					// start building list
+
+					// build address list
+					list += "<div class='list-item'>"
+					Object.entries( feature.properties.address ).forEach( kv =>{
+						list += "<div>" + kv[1] + "<span>" + kv[0] + "</span></div>" 
+					})
+					list += "</div>"
+					// list += "<div class='list-item'>" + JSON.stringify( feature ) + "</div>"
+					console.log( JSON.stringify( feature ) )
 				})
+
+				$( 'list' ).innerHTML = list
 			})
 	}
+
 	</script>
 
 	<!-- banner -->
@@ -142,15 +163,11 @@
 <script>
 	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
 
-	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-	    //attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	    maxZoom: 18,
-	    minZoom: 2,
-	    id: 'mapbox/streets-v11',
-	    tileSize: 512,
-	    zoomOffset: -1,
-	    accessToken: 'pk.eyJ1Ijoid2hvaXN0ZXJlbmNlbGVlIiwiYSI6ImNrZHRxZXl4dTIwYzAycXRhNm96aGQ4dmIifQ.m_-o80ozKI9vPf9xAZ2tvg' ,
-	}).addTo(map);
+	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 19,
+		minZoom: 2,
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo( map )
 </script>
 
 </body>
