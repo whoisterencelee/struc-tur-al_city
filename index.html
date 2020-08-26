@@ -134,14 +134,16 @@
 	}
 
 	var proxy = "https://functional.limited"
+	var structurals = {}
 
-	function loadCities(){
-		var b = map.getBounds()
-		fetch( proxy + "/c/" + Math.floor( b._southWest.lat ) + "," + Math.floor( b._northEast.lng ) ).then( response => response.json() )
+	function loadStructurals(){
+		var b = map.getBounds() , bounds = Math.floor( b._southWest.lat ) + "," + Math.floor( b._northEast.lng )
+		if( structurals[ bounds ] ) return // already loaded
+		fetch( proxy + "/c/" + bounds ).then( response => response.json() )
 			.then( data => {
 				var geojsons = { features : data }
 				buildMarkers( geojsons , { dontBuildList : true } )
-				console.log( JSON.stringify( data ) )
+				structurals[ bounds ] = new Date()  // keep track of last load time
 			} )
 	}
 
@@ -223,7 +225,7 @@
 		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo( map )
 
-	loadCities()
+	loadStructurals()
 </script>
 
 </body>
