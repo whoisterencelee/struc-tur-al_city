@@ -55,7 +55,7 @@
 
 		<div id="list" style="background:rgba(255,255,255,0.8);box-shadow:1px 1px 3px grey;width:100%;max-height:40vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
 			<div class="list-item">
-			Type exact location or<br /> Press "Structural.City" to locate building at map center
+			<span>Input exact location <u>or</u><br /> Press "Structural.City" to locate structure at map center</span>
 			</div>
 		</div>
 	</div>
@@ -69,30 +69,33 @@
 		places = []
 	}
 
-	function buildMarkers( geojsons , centerFirst ){
+	// options = shouldCenterMap , dontBuildList  + leafjs>marker>options
+	function buildMarkers( geojsons , options ){
 		var list = ""
 		geojsons.features.forEach( feature => {
 			var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
 
 			places.push( { 
 				feature : feature ,
-				marker : L.marker( [ lat , lon ] ).addTo( map )
+				marker : L.marker( [ lat , lon ] , options ).addTo( map )
 			} )
 
 			// center map
-			if( centerFirst ){ map.setView( [ lat , lon ] ); centerFirst = false }
+			if( options.shouldCenterMap ){ map.setView( [ lat , lon ] ); options.shouldCenterMap = false }
 
 			// build address list
-			list += "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
-			Object.entries( feature.properties.address ).forEach( kv => {
-				if( kv[ 0 ] == "country_code" ) return
-				list += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
-			})
-			list += "<div><span>" + lat + "," + lon + "</span></div>" + "</div>"
+			if( !options.dontBuildList ){
+				list += "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
+				Object.entries( feature.properties.address ).forEach( kv => {
+					if( kv[ 0 ] == "country_code" ) return
+					list += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
+				})
+				list += "<div><span>" + lat + "," + lon + "</span></div>" + "</div>"
+			}
 
 			console.log( JSON.stringify( feature ) )
 		})
-		$( 'list' ).innerHTML = list
+		if( !options.dontBuildList ) $( 'list' ).innerHTML = list
 	}
 
 	// UI
@@ -106,7 +109,7 @@
 				+ "&addressdetails=1"
 				)
 			.then( response => response.json() )
-			.then( data => buildMarkers( data ) )
+			.then( data => buildMarkers( data , { shouldCenterMap : true } ) )
 	}
 
 	function clickLocate(){
@@ -128,6 +131,18 @@
 		var list_item = event.target
 		while( ! /list-item/.test( list_item.className ) ){ list_item = list_item.parentNode }
 		map.setView( [ list_item.attributes.lat.value , list_item.attributes.lon.value ] )
+	}
+
+	var proxy = "https://functional.limited"
+
+	function loadCities(){
+		var b = map.getBounds()
+		fetch( proxy + "/c/" + Math.floor( b._southWest.lat ) + "," + Math.floor( b._northEast.lng ) ).then( response => response.json() )
+			.then( data => {
+				var geojsons = { features : data }
+				buildMarkers( geojsons , { dontBuildList : true } )
+				console.log( JSON.stringify( data ) )
+			} )
 	}
 
 	</script>
@@ -207,6 +222,8 @@
 		minZoom: 2,
 		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo( map )
+
+	loadCities()
 </script>
 
 </body>
