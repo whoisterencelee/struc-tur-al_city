@@ -41,8 +41,8 @@
 	<div class="float" style="max-width:24em;width:85vw;right:0;">
 		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:2px 0;" onsubmit="return false">
 			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
-				<span style="margin:.5em 1em;" onclick="selectTarget()">Structural.City</span> 
-				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="locate()">
+				<span style="margin:.5em 1em;" onclick="clickLocate()">Structural.City</span> 
+				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="typeLocate()">
 			</label>
 		</form>
 
@@ -64,87 +64,70 @@
 	var places = []
 
 	function clearMarkers(){
-		places.forEach( place => place.marker.remove() )  // clear all markers first
+		places.forEach( place => place.marker.remove() )
 		delete places
 		places = []
 	}
 
-	function locate(){
-		clearMarkers()
+	function buildMarkers( geojsons , centerFirst ){
 		var list = ""
+		geojsons.features.forEach( feature => {
+			var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
 
+			places.push( { 
+				feature : feature ,
+				marker : L.marker( [ lat , lon ] ).addTo( map )
+			} )
+
+			// center map
+			if( centerFirst ){ map.setView( [ lat , lon ] ); centerFirst = false }
+
+			// build address list
+			list += "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
+			Object.entries( feature.properties.address ).forEach( kv => {
+				if( kv[ 0 ] == "country_code" ) return
+				list += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
+			})
+			list += "<div><span>" + lat + "," + lon + "</span></div>" + "</div>"
+
+			console.log( JSON.stringify( feature ) )
+		})
+		$( 'list' ).innerHTML = list
+	}
+
+	// UI
+
+	function typeLocate(){
+		clearMarkers()
+		// geocoding
 		fetch( "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent( event.target.value )
 				+ "&format=geojson"
 				// + "&polygon_geojson=1" // careful this switches geometry to polygon
 				+ "&addressdetails=1"
 				)
 			.then( response => response.json() )
+			.then( data => buildMarkers( data ) )
+	}
+
+	function clickLocate(){
+		clearMarkers()
+		var target = map.getCenter()
+		// reverse geocoding
+		fetch( "https://nominatim.openstreetmap.org/reverse?lat=" + target.lat + "&lon=" + target.lng
+				+ "&format=geojson"
+				+ "&addressdetails=1"
+				)
+			.then( response => response.json() )
 			.then( data => {
-				data.features.forEach( feature => {
-					var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
-
-					places.push( { 
-						feature : feature ,
-						marker : L.marker( [ lat , lon ] ).addTo( map )
-					} )
-
-					// center map
-					if( list == "" ) map.setView( [ lat , lon ] )
-
-					// build address list
-					list += "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
-					Object.entries( feature.properties.address ).forEach( kv => {
-						if( kv[ 0 ] == "country_code" ) return
-						list += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
-					})
-					list += "<div><span>" + lat + " , " + lon + "</span></div>" + "</div>"
-
-					console.log( JSON.stringify( feature ) )
-				})
-
-				$( 'list' ).innerHTML = list
-			})
+				buildMarkers( data ) 
+				$( "location" ).value = data.features[ 0 ].properties.display_name
+			} ) 
 	}
 
 	function selectLocate(){
 		var list_item = event.target
 		while( ! /list-item/.test( list_item.className ) ){ list_item = list_item.parentNode }
 		map.setView( [ list_item.attributes.lat.value , list_item.attributes.lon.value ] )
-	}
-
-	function reverse( lat , lon ){
-		fetch( "https://nominatim.openstreetmap.org/reverse?lat=" + lat + "&lon=" + lon
-				+ "&format=geojson"
-				+ "&addressdetails=1"
-				)
-			.then( response => response.json() )
-			.then( data => {
-				var feature = data.features[ 0 ]
-				var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
-				$( "location" ).value = feature.properties.display_name
-				places.push( {
-					feature : feature ,
-					marker : L.marker( [ lat , lon ] ).addTo( map )
-				} )
-				
-				// build address list
-				var list = "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
-				Object.entries( feature.properties.address ).forEach( kv => {
-					if( kv[ 0 ] == "country_code" ) return
-					list += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
-				})
-				list += "<div><span>" + lat + " , " + lon + "</span></div>" + "</div>"
-
-				console.log( JSON.stringify( data ) )
-
-				$( 'list' ).innerHTML = list
-			})
-	}
-
-	function selectTarget(){
-		clearMarkers()
-		var target = map.getCenter()
-		reverse( target.lat , target.lng )
 	}
 
 	</script>
