@@ -179,6 +179,11 @@
 		fetch( proxy + "/c/" + bounds ).then( response => response.json() )
 			.then( data => {
 				var geojsons = { features : data }
+				data.forEach( feature => {
+					var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
+					structurals[ lat + ',' + lon ] = true  // keep track of all managing structures
+				} )
+
 				buildMarkers( geojsons , { dontBuildList : true , raiseOnHover : true } )
 				cities[ bounds ] = new Date()  // keep track of last load time
 			} )
