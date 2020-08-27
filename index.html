@@ -69,29 +69,41 @@
 		places = []
 	}
 
+	function buildAddress( lon , lat , address ){
+		var addressDOM = "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
+		Object.entries( address ).forEach( kv => {
+			if( kv[ 0 ] == "country_code" ) return
+			addressDOM += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
+		})
+		addressDOM += "<div><span>" + lat + "," + lon + "</span></div>" + "</div>"
+		return addressDOM
+	}
+
 	// options = shouldCenterMap , dontBuildList  + leafjs>marker>options
 	function buildMarkers( geojsons , options ){
 		var list = "" , options = options ? options : {}
 		geojsons.features.forEach( feature => {
 			var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
+			var marker = L.marker( [ lat , lon ] , options ).addTo( map )
+			var address = feature.properties.address
+
+			marker.on( "click" ,  evt =>{ 
+				map.setView( evt.latlng )
+				// search thur list and scroll to it
+				// if not on list build
+				$( "list" ).innerHTML = buildAddress( lon , lat , address )
+			} )
 
 			places.push( { 
 				feature : feature ,
-				marker : L.marker( [ lat , lon ] , options ).addTo( map )
+				marker : marker
 			} )
 
 			// center map
 			if( options.shouldCenterMap ){ map.setView( [ lat , lon ] ); options.shouldCenterMap = false }
 
 			// build address list
-			if( !options.dontBuildList ){
-				list += "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
-				Object.entries( feature.properties.address ).forEach( kv => {
-					if( kv[ 0 ] == "country_code" ) return
-					list += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
-				})
-				list += "<div><span>" + lat + "," + lon + "</span></div>" + "</div>"
-			}
+			if( !options.dontBuildList ) list += buildAddress( lon , lat , address )
 
 			console.log( JSON.stringify( feature ) )
 		})
@@ -157,10 +169,11 @@
 		fetch( proxy + "/c/" + bounds ).then( response => response.json() )
 			.then( data => {
 				var geojsons = { features : data }
-				buildMarkers( geojsons , { dontBuildList : true } )
+				buildMarkers( geojsons , { dontBuildList : true , raiseOnHover : true } )
 				structurals[ bounds ] = new Date()  // keep track of last load time
 			} )
 	}
+	loadStructurals()
 
 </script>
 
