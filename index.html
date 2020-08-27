@@ -82,31 +82,35 @@
 	// options = shouldCenterMap , dontBuildList  + leafjs>marker>options
 	function buildMarkers( geojsons , options ){
 		var list = "" , options = options ? options : {}
+
 		geojsons.features.forEach( feature => {
 			var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
 			var marker = L.marker( [ lat , lon ] , options ).addTo( map )
 			var address = feature.properties.address
 
-			marker.on( "click" ,  evt =>{ 
+			marker.on( "click" ,  evt => { 
 				map.setView( evt.latlng )
+
 				// search thur list and scroll to it
-				// if not on list build
-				$( "list" ).innerHTML = buildAddress( lon , lat , address )
+				var p = places.findIndex( p => p.marker == marker )
+				if( p != -1 && $( 'list' ).childNodes[ p ] ) $( 'list' ).childNodes[ p ].scrollIntoView()
+				else $( "list" ).innerHTML = buildAddress( lon , lat , address ) // if not on list > build
 			} )
 
-			places.push( { 
-				feature : feature ,
-				marker : marker
-			} )
+			if( options.shouldCenterMap ){ map.setView( [ lat , lon ] ); options.shouldCenterMap = false } // center map
 
-			// center map
-			if( options.shouldCenterMap ){ map.setView( [ lat , lon ] ); options.shouldCenterMap = false }
+			if( !options.dontBuildList ){
+				places.push( { 
+					feature : feature ,
+					marker : marker
+				} )
 
-			// build address list
-			if( !options.dontBuildList ) list += buildAddress( lon , lat , address )
+				list += buildAddress( lon , lat , address ) // build address list
+			}
 
 			console.log( JSON.stringify( feature ) )
-		})
+		})  // loop over geojsons
+
 		if( !options.dontBuildList ) $( 'list' ).innerHTML = list
 	}
 
