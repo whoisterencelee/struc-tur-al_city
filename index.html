@@ -98,9 +98,10 @@
 				map.setView( evt.latlng )
 
 				if( $( 'list' ).getElementsByClassName( 'list-item' ).length <= 1 ) $( "list" ).innerHTML = buildAddress( lon , lat , address )
-				else { // if list has more than one, then find it in the list
-					var p = places.findIndex( p => p.marker == marker )
-					if( p != -1 && $( 'list' ).childNodes[ p ] ) $( 'list' ).childNodes[ p ].scrollIntoView()
+				else { // if list has more than one place, then find it in the list
+					var p = places.findIndex( place => place.marker == marker )
+					if( p == -1 ) alert( "marker not found in list" )
+					else $( 'list' ).childNodes[ p ].scrollIntoView()
 				}
 			} )
 
@@ -170,16 +171,16 @@
 
 	// load poi
 	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
-	var structurals = {}
+	var cities = {} , structurals = {}
 
 	function loadStructurals(){
 		var b = map.getBounds() , bounds = Math.floor( b._southWest.lat ) + "," + Math.floor( b._northEast.lng )
-		if( structurals[ bounds ] ) return // already loaded
+		if( cities[ bounds ] ) return // already loaded
 		fetch( proxy + "/c/" + bounds ).then( response => response.json() )
 			.then( data => {
 				var geojsons = { features : data }
 				buildMarkers( geojsons , { dontBuildList : true , raiseOnHover : true } )
-				structurals[ bounds ] = new Date()  // keep track of last load time
+				cities[ bounds ] = new Date()  // keep track of last load time
 			} )
 	}
 	loadStructurals()
