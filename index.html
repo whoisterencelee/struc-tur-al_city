@@ -55,7 +55,7 @@
 
 		<div id="list" style="background:rgba(255,255,255,0.8);box-shadow:1px 1px 3px grey;width:100%;max-height:40vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
 			<div class="list-item">
-			<span>Input exact location <u>or</u><br /> Press "Structural.City" to locate structure at map center</span>
+			<span>input exact location <u>or</u> press 'Structural.City'</span>
 			</div>
 		</div>
 	</div>
@@ -71,7 +71,7 @@
 
 	// options = shouldCenterMap , dontBuildList  + leafjs>marker>options
 	function buildMarkers( geojsons , options ){
-		var list = ""
+		var list = "" , options = options ? options : {}
 		geojsons.features.forEach( feature => {
 			var lon = feature.geometry.coordinates[ 0 ] , lat = feature.geometry.coordinates[ 1 ]
 
@@ -133,7 +133,22 @@
 		map.setView( [ list_item.attributes.lat.value , list_item.attributes.lon.value ] )
 	}
 
-	var proxy = "https://functional.limited"
+	</script>
+
+<div id="map" style="flex-grow:1;">
+</div>
+<script>
+	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
+
+	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 19,
+		minZoom: 2,
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo( map )
+
+
+	// load poi
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
 	var structurals = {}
 
 	function loadStructurals(){
@@ -147,85 +162,6 @@
 			} )
 	}
 
-	</script>
-
-	<!-- banner -->
-	<!--
-	<style>
-		.banner div{flex-grow:1}
-		.banner div:hover{text-shadow:0 0 5px navy;}
-		.ocean {margin:1em 7vw;text-align:center;width:100%;}
-		.menu1:focus ~ #menu1 {display:block;}
-		.menu2:focus ~ #menu2 {display:block;}
-	</style>
-	<div class="unselectable banner" style="flex-direction:row;justify-content:space-evenly;background:#4eadb8;color:white;padding:0.5em;box-shadow:0 5px 5px 0 lightgrey;">
-		<div tabindex="1" class="menu1">About</div>
-		<div tabindex="2" id="banner_Latest" >Latest</div>
-		<div tabindex="3" id="banner_Learn">Learn</div>
-		<div tabindex="4" id="banner_Make">Make</div>
-		<div tabindex="5" id="banner_Check">Check</div>
-		<div tabindex="6" class="menu2">Signup</div>
-
-		<div class="hide ocean" id="menu2">Current signup by invitation only</div>
-
-		<div class="hide ocean" id="menu1" style="text-align:justify;">
-		This global association is an unlimited duration non-profit organization whose mission is to use technology and social affairs to encourage sustainability development.  To create a community with opportunities for dialogue and exchange of ideas under the premises of economic development, social responsibility and environmental betterment.  To provide an online management platform for sustainable industry projects and activities which include education, inspiration, connection, coordination and verification of sustainable efforts.
-		</div>
-	</div>
-
-	<div style="height:5vh;overflow:hidden;" ><svg viewBox="0 20 500 66" preserveAspectRatio="none" style="height: 100%; width: 100%;"><path d="M0.00,49.98 C243.79,30.88 247.17,96.02 500.00,49.98 L500.00,0.00 L0.00,0.00 Z" style="stroke: none; fill: #4eadb8;"></path></svg></div>
-
-	<style>
-	#hotlist {flex-grow:1;flex-direction:row;justify-content:center;padding:0 1vw;}
-	div.solution {width:90vw;height:90vh;max-width:320px;max-height:calc( 320px + 8em );margin:1vw;box-shadow:0px 0px 5px 0px lightgrey;flex-wrap:nowrap;justify-content:space-between;background:white;} /* compose of two main sections visual (varying height) and content (height fixed at 8em) */
-	div.solution_temp {width:90vw;height:90vh;max-width:320px;max-height:calc( 320px + 8em );margin:1vw;box-shadow:0px 0px 5px 0px lightgrey;flex-wrap:nowrap;justify-content:center;background:white;text-align:center;color:grey;} /* basically same as solution */
-
-	div.solution div.visual {width:100%;height:calc(100% - 8em);overflow:hidden;justify-content:center;align-content:center;} /* center image */
-	div.solution div.visual img {width:100%;height:100%;object-fit:cover;} /* ensure image will fill up the horizontal space, tested on firefox, chrome */
-
-	div.solution div.content {flex-grow:1;flex-wrap:nowrap;width:calc(100% - 1em);padding:0.5em;justify-content:space-between;align-items:start;} /* no wrap, fill up the width but account for padding */
-
-	div.solution div.content div {overflow:hidden;align-items:start;text-overflow:ellipsis;}
-	div.solution div.content div.description {color:#0070c4;font-size:1.2em;}
-	div.solution div.content div.need {color:#4eadb8;}
-	div.solution div.content div.need {min-height:1.2em;}
-	div.solution div.content div.certified {white-space:nowrap;font-size:0.75em;color:grey;align-self:flex-end;min-height:1.2em;}
-	</style>
-	-->
-
-
-<!-- hot list -->
-<div id="hotlist">
-
-	<script>
-	function onlycards( category ){
-		$('hotlist').childNodes.forEach( d => {
-			if( d.nodeType == 1 && ( category != null && d.getAttribute( "category" ) && !d.getAttribute( "category" ).match( category ) ) ) d.style.display = "none"
-			else if( d.style && d.style.display ) d.style.display = ""
-		})
-	}
-	$( 'banner_Latest' ).onclick=()=>onlycards()
-	$( 'banner_Learn' ).onclick=()=>onlycards( "learn" )
-	$( 'banner_Make' ).onclick=()=>onlycards( "make" )
-	$( 'banner_Check' ).onclick=()=>onlycards( "check" )
-	</script>
-	<script>
-	function toogle(){var c=event.currentTarget.parentNode.childNodes,cl=c.length;while(cl--){if(c[cl].style&&c[cl].style.display){if(c[cl]!=event.currentTarget)c[cl].style.display=''}}event.currentTarget.style.display='none'}
-	</script>
-</div>
-
-<div id="map" style="flex-grow:1;">
-</div>
-<script>
-	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
-
-	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		maxZoom: 19,
-		minZoom: 2,
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-		}).addTo( map )
-
-	loadStructurals()
 </script>
 
 </body>
