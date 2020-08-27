@@ -1,0 +1,148 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title>structrual.city</title>
+  <meta name="description" content="smart city for everyone">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <meta name="theme-color" content="#d8ccb3">
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+
+</head>
+
+<body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;">
+  <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+	<style>
+	div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.hide {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	.unselectable {-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
+	input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
+	</style>
+	<script>$=(i=>document.getElementById(i)||{})</script>
+
+	<!-- header -->
+	<div style="background:#003c2e;color:#b29f88;padding:1em 0 0.5em 0;text-align:center;text-shadow:1px 1px 3px black;width:100%;">
+
+		<div style="flex-direction:row;width:100%;justify-content:space-evenly;">
+			<div style="flex-direction:row;">
+			<img style="height:6em;margin:0.5em;" src="./structural.svg" />
+			<div>
+			<div style="font-size:1.8em;">Structural.City</div>
+			<div style="font-size:3em;">城市結構</div>
+			</div>
+			</div>
+
+			<div>
+			<div style="font-size:1.25em;">智能城市物業管理</div>
+			<div style="font-size:1em;">Smart Urban Property Management</div>
+			</div>
+		</div>
+
+		<form class="div" style="width:100%;flex-direction:row;margin:1em 0;">
+			<label>
+				<input name="buid" type="text" placeholder="Location 輸入位置">
+			</label>
+		</form>
+
+	</div>
+
+
+	<!-- banner -->
+	<!--
+	<style>
+		.banner div{flex-grow:1}
+		.banner div:hover{text-shadow:0 0 5px navy;}
+		.ocean {margin:1em 7vw;text-align:center;width:100%;}
+		.menu1:focus ~ #menu1 {display:block;}
+		.menu2:focus ~ #menu2 {display:block;}
+	</style>
+	<div class="unselectable banner" style="flex-direction:row;justify-content:space-evenly;background:#4eadb8;color:white;padding:0.5em;box-shadow:0 5px 5px 0 lightgrey;">
+		<div tabindex="1" class="menu1">About</div>
+		<div tabindex="2" id="banner_Latest" >Latest</div>
+		<div tabindex="3" id="banner_Learn">Learn</div>
+		<div tabindex="4" id="banner_Make">Make</div>
+		<div tabindex="5" id="banner_Check">Check</div>
+		<div tabindex="6" class="menu2">Signup</div>
+
+		<div class="hide ocean" id="menu2">Current signup by invitation only</div>
+
+		<div class="hide ocean" id="menu1" style="text-align:justify;">
+		This global association is an unlimited duration non-profit organization whose mission is to use technology and social affairs to encourage sustainability development.  To create a community with opportunities for dialogue and exchange of ideas under the premises of economic development, social responsibility and environmental betterment.  To provide an online management platform for sustainable industry projects and activities which include education, inspiration, connection, coordination and verification of sustainable efforts.
+		</div>
+	</div>
+
+	<div style="height:5vh;overflow:hidden;" ><svg viewBox="0 20 500 66" preserveAspectRatio="none" style="height: 100%; width: 100%;"><path d="M0.00,49.98 C243.79,30.88 247.17,96.02 500.00,49.98 L500.00,0.00 L0.00,0.00 Z" style="stroke: none; fill: #4eadb8;"></path></svg></div>
+
+	<style>
+	#hotlist {flex-grow:1;flex-direction:row;justify-content:center;padding:0 1vw;}
+	div.solution {width:90vw;height:90vh;max-width:320px;max-height:calc( 320px + 8em );margin:1vw;box-shadow:0px 0px 5px 0px lightgrey;flex-wrap:nowrap;justify-content:space-between;background:white;} /* compose of two main sections visual (varying height) and content (height fixed at 8em) */
+	div.solution_temp {width:90vw;height:90vh;max-width:320px;max-height:calc( 320px + 8em );margin:1vw;box-shadow:0px 0px 5px 0px lightgrey;flex-wrap:nowrap;justify-content:center;background:white;text-align:center;color:grey;} /* basically same as solution */
+
+	div.solution div.visual {width:100%;height:calc(100% - 8em);overflow:hidden;justify-content:center;align-content:center;} /* center image */
+	div.solution div.visual img {width:100%;height:100%;object-fit:cover;} /* ensure image will fill up the horizontal space, tested on firefox, chrome */
+
+	div.solution div.content {flex-grow:1;flex-wrap:nowrap;width:calc(100% - 1em);padding:0.5em;justify-content:space-between;align-items:start;} /* no wrap, fill up the width but account for padding */
+
+	div.solution div.content div {overflow:hidden;align-items:start;text-overflow:ellipsis;}
+	div.solution div.content div.description {color:#0070c4;font-size:1.2em;}
+	div.solution div.content div.need {color:#4eadb8;}
+	div.solution div.content div.need {min-height:1.2em;}
+	div.solution div.content div.certified {white-space:nowrap;font-size:0.75em;color:grey;align-self:flex-end;min-height:1.2em;}
+	</style>
+	-->
+
+
+<!-- hot list -->
+<div id="hotlist">
+
+	<script>
+	function onlycards( category ){
+		$('hotlist').childNodes.forEach( d => {
+			if( d.nodeType == 1 && ( category != null && d.getAttribute( "category" ) && !d.getAttribute( "category" ).match( category ) ) ) d.style.display = "none"
+			else if( d.style && d.style.display ) d.style.display = ""
+		})
+	}
+	$( 'banner_Latest' ).onclick=()=>onlycards()
+	$( 'banner_Learn' ).onclick=()=>onlycards( "learn" )
+	$( 'banner_Make' ).onclick=()=>onlycards( "make" )
+	$( 'banner_Check' ).onclick=()=>onlycards( "check" )
+	</script>
+	<script>
+	function toogle(){var c=event.currentTarget.parentNode.childNodes,cl=c.length;while(cl--){if(c[cl].style&&c[cl].style.display){if(c[cl]!=event.currentTarget)c[cl].style.display=''}}event.currentTarget.style.display='none'}
+	</script>
+</div>
+
+<div id="map" style="flex-grow:1;">
+</div>
+<script>
+	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
+
+	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+	    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+	    maxZoom: 18,
+	    id: 'mapbox/streets-v11',
+	    tileSize: 512,
+	    zoomOffset: -1,
+	    accessToken: 'pk.eyJ1Ijoid2hvaXN0ZXJlbmNlbGVlIiwiYSI6ImNrZHRxZXl4dTIwYzAycXRhNm96aGQ4dmIifQ.m_-o80ozKI9vPf9xAZ2tvg' ,
+	}).addTo(map);
+</script>
+
+</body>
+
+</html>
