@@ -1,4 +1,4 @@
-<!doctype html>
+<doctype html>
 <html class="no-js" lang="">
 
 <head>
@@ -15,10 +15,6 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-
-  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
-
 </head>
 
 <body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;">
@@ -31,12 +27,22 @@
 	.div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
 	.hide {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
 	.unselectable {-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
-	input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
-	input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
+	.rounded input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
+	.rounded input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
+	.float { position:fixed;z-index:99999;}
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
 	<!-- header -->
+	<div class="float" style="max-width:24em;right:0;">
+		<div style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
+			<span style="margin:.5em 1em;" onclick="">Structural.City</span> 
+		</div>
+	</div>
+	<div style="background:white;height:20vh;">
+	</div>
+
+	<!-- footer 
 	<div style="background:#003c2e;color:#b29f88;padding:1em 0 0.5em 0;text-align:center;text-shadow:1px 1px 3px black;width:100%;">
 
 		<div style="flex-direction:row;width:100%;justify-content:space-evenly;">
@@ -54,13 +60,40 @@
 			</div>
 		</div>
 
-		<form class="div" style="width:100%;flex-direction:row;margin:1em 0;">
-			<label>
-				<input name="buid" type="text" placeholder="Location 輸入位置">
-			</label>
-		</form>
-
 	</div>
+	-->
+	<style>
+		.soln > div { 
+			border-bottom:1px solid grey;
+			width:100%;flex-direction:row;
+			height:2em;justify-content:start;
+			flex-wrap:nowrap;overflow:scroll; 
+			padding:0 0 0.5em 0;
+			}
+		.soln > div > div { height:1.5em;margin:0.15em;border:1px solid grey;border-radius:1em;padding:0 1em;background:white; }
+	</style>
+
+	<div class="soln">
+		<div><!-- building -->
+			<div>1</div><div>2</div>
+			<div>1</div><div>2</div>
+			<div>1</div><div>2</div>
+			<div>1</div><div>2</div>
+			<div>1</div><div>2</div>
+		</div>
+		<div><!-- area -->
+		</div>
+		<div style="border:0;"><!-- city -->
+		</div>
+	</div>
+
+	<form class="div" style="width:100%;flex-direction:row;">
+		<label style="width:100%;">
+			<input name="buid" type="text" placeholder="Interaction" style="width:100%;text-align:center;">
+		</label>
+	</form>
+
+	<div><span style="background:darkred;color:lightgrey;box-shadow:0 0 2px 1px grey;padding:0 1em;">New Notice</span></div>
 
 
 	<!-- banner -->
@@ -127,21 +160,6 @@
 	function toogle(){var c=event.currentTarget.parentNode.childNodes,cl=c.length;while(cl--){if(c[cl].style&&c[cl].style.display){if(c[cl]!=event.currentTarget)c[cl].style.display=''}}event.currentTarget.style.display='none'}
 	</script>
 </div>
-
-<div id="map" style="flex-grow:1;">
-</div>
-<script>
-	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
-
-	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-	    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	    maxZoom: 18,
-	    id: 'mapbox/streets-v11',
-	    tileSize: 512,
-	    zoomOffset: -1,
-	    accessToken: 'pk.eyJ1Ijoid2hvaXN0ZXJlbmNlbGVlIiwiYSI6ImNrZHRxZXl4dTIwYzAycXRhNm96aGQ4dmIifQ.m_-o80ozKI9vPf9xAZ2tvg' ,
-	}).addTo(map);
-</script>
 
 </body>
 
