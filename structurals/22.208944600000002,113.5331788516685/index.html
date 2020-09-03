@@ -41,22 +41,38 @@
 	</div>
 
 	<!-- avatar -->
-	<div id="avatar" style="background:white;height:20vh;font-size:small;justify-content:end;">
+	<div id="address" style="background:white;height:20vh;font-size:small;justify-content:end;">
 	</div>
 
 	<script>
 	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
-	var geocode = document.location.pathname.split('/').slice(-2)[0]
+	var latlon = document.location.pathname.split('/').slice(-2)[0]
+	$( 'address' ).textContent = latlon
 
-	fetch( proxy + "/s/" + geocode + "/structural.json" ).then( r => r.json() )
+	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
-			var structural = geocode + "<br />"
-			Object.values( data.properties.address ).forEach( v => structural += v + ", " )
-			structural = structural.slice( 0 , -2 )
-			$( 'avatar' ).innerHTML = structural
+			var address = latlon + "<br />"
+			Object.values( data.properties.address ).forEach( v => address += v + ", " )
+			$( 'address' ).innerHTML = address.slice( 0 , -2 )
 		} )
 
-	$( 'avatar' ).textContent = geocode
+	// city
+	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
+	var structurals = {} , onekm = {}
+
+	fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
+		.then( data => {
+			data.forEach( feature => {
+				var nearlon = feature.geometry.coordinates[ 0 ] , nearlat = feature.geometry.coordinates[ 1 ]
+				structurals[ nearlat + ',' + nearlon ] = feature
+				
+				// less than 1/100 of a degress or ~1.1km
+				if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlat + ',' + nearlon ] = feature
+
+				// index
+			} )
+		} )
+
 
 	</script>
 

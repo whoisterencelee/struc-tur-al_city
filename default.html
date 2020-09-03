@@ -39,8 +39,42 @@
 			<span style="margin:.5em 1em;" onclick="">Structural.City</span> 
 		</div>
 	</div>
-	<div style="background:white;height:20vh;">
+
+	<!-- avatar -->
+	<div id="address" style="background:white;height:20vh;font-size:small;justify-content:end;">
 	</div>
+
+	<script>
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
+	var latlon = document.location.pathname.split('/').slice(-2)[0]
+	$( 'address' ).textContent = latlon
+
+	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
+		.then( data => {
+			var address = latlon + "<br />"
+			Object.values( data.properties.address ).forEach( v => address += v + ", " )
+			$( 'address' ).innerHTML = address.slice( 0 , -2 )
+		} )
+
+	// city
+	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
+	var structurals = {} , onekm = {}
+
+	fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
+		.then( data => {
+			data.forEach( feature => {
+				var nearlon = feature.geometry.coordinates[ 0 ] , nearlat = feature.geometry.coordinates[ 1 ]
+				structurals[ nearlat + ',' + nearlon ] = feature
+				
+				// less than 1/100 of a degress or ~1.1km
+				if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlat + ',' + nearlon ] = feature
+
+				// index
+			} )
+		} )
+
+
+	</script>
 
 	<!-- footer 
 	<div style="background:#003c2e;color:#b29f88;padding:1em 0 0.5em 0;text-align:center;text-shadow:1px 1px 3px black;width:100%;">
@@ -67,7 +101,7 @@
 			border-bottom:1px solid grey;
 			width:100%;flex-direction:row;
 			height:2em;justify-content:start;
-			flex-wrap:nowrap;overflow:scroll; 
+			flex-wrap:nowrap;overflow:auto; 
 			padding:0 0 0.5em 0;
 			}
 		.soln > div > div { height:1.5em;margin:0.15em;border:1px solid grey;border-radius:1em;padding:0 1em;background:white; }
