@@ -15,6 +15,8 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
 
+  <script src="http://elasticlunr.com/elasticlunr.min.js"></script>
+
 </head>
 
 <body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;">
@@ -48,28 +50,43 @@
 	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
 	var latlon = document.location.pathname.split('/').slice(-2)[0]
 	$( 'address' ).textContent = latlon
+	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
+	// search
+	var index = elasticlunr( function(){ this.addField( 'action' ); this.setRef( 'latlon' ) } )
+
+	// structure
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
+			structurals[ latlon ] = data  // save the structural data and services
+
 			var address = latlon + "<br />"
 			Object.values( data.properties.address ).forEach( v => address += v + ", " )
 			$( 'address' ).innerHTML = address.slice( 0 , -2 )
+
+			if( data.OrganizeActions ){
+				data.OrganizeActions.forEach( action => index.addDoc( { latlon : latlon , action : action.description , url : action.url } ) )
+			}
 		} )
 
 	// city
-	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 	var structurals = {} , onekm = {}
 
 	fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
 		.then( data => {
 			data.forEach( feature => {
 				var nearlon = feature.geometry.coordinates[ 0 ] , nearlat = feature.geometry.coordinates[ 1 ]
-				structurals[ nearlat + ',' + nearlon ] = feature
-				
+				var nearlatlon = nearlat + "," + nearlon
+				structurals[ nearlatlon ] ? "" : structurals[ nearlatlon ] = feature  // don't override more detailed structural
+
+	// area
 				// less than 1/100 of a degress or ~1.1km
-				if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlat + ',' + nearlon ] = feature
+				if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlatlon ] = feature
+
+				// load area's random structure TODO
 
 				// index
+
 			} )
 		} )
 
@@ -97,23 +114,18 @@
 	</div>
 	-->
 	<style>
-		.soln > div { 
+		.actions > div { 
 			border-bottom:1px solid grey;
 			width:100%;flex-direction:row;
 			height:2em;justify-content:start;
 			flex-wrap:nowrap;overflow:auto; 
 			padding:0 0 0.5em 0;
 			}
-		.soln > div > div { height:1.5em;margin:0.15em;border:1px solid grey;border-radius:1em;padding:0 1em;background:white; }
+		.actions > div > div { height:1.5em;margin:0.15em;border:1px solid grey;border-radius:1em;padding:0 1em;background:white; }
 	</style>
 
-	<div class="soln">
-		<div><!-- building -->
-			<div>1</div><div>2</div>
-			<div>1</div><div>2</div>
-			<div>1</div><div>2</div>
-			<div>1</div><div>2</div>
-			<div>1</div><div>2</div>
+	<div class="actions">
+		<div id="structure"><!-- structure -->
 		</div>
 		<div><!-- area -->
 		</div>
