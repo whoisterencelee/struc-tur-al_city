@@ -47,49 +47,65 @@
 	</div>
 
 	<script>
+	var structurals = {}
 	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
+
 	var latlon = document.location.pathname.split('/').slice(-2)[0]
 	$( 'address' ).textContent = latlon
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
-	// search
-	var index = elasticlunr( function(){ this.addField( 'action' ); this.setRef( 'latlon' ) } )
+	// internal structural
+	var internal_index = elasticlunr( function(){ this.addField( 'action' ); this.setRef( 'latlon' ) } )
 
-	// structure
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
-			structurals[ latlon ] = data  // save the structural data and services
+			structurals[ latlon ] = data  // save the structural properties and actions
 
 			var address = latlon + "<br />"
 			Object.values( data.properties.address ).forEach( v => address += v + ", " )
 			$( 'address' ).innerHTML = address.slice( 0 , -2 )
 
-			if( data.OrganizeActions ){
-				data.OrganizeActions.forEach( action => index.addDoc( { latlon : latlon , action : action.description , url : action.url } ) )
+			// TODO private actions
+
+			if( data.actions ){  // build actions
+				data.actions.forEach( action =>{
+					internal_index.addDoc( { latlon : latlon , action : action.description , url : action.url } ) 
+
+					var actionDOM = document.createElement( "div" )
+					actionDOM.textContent = action.description
+					$('structure').appendChild( actionDOM )
+				} )
 			}
+
+			external()
 		} )
 
-	// city
-	var structurals = {} , onekm = {}
+	// external structurals
+	var onekm = {}
+	var area_index = elasticlunr( function(){ this.addField( 'action'); this.setRef( 'latlon' ) } )
+	var city_index = elasticlunr( function(){ this.addField( 'action'); this.setRef( 'latlon' ) } )
 
-	fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
-		.then( data => {
-			data.forEach( feature => {
-				var nearlon = feature.geometry.coordinates[ 0 ] , nearlat = feature.geometry.coordinates[ 1 ]
-				var nearlatlon = nearlat + "," + nearlon
-				structurals[ nearlatlon ] ? "" : structurals[ nearlatlon ] = feature  // don't override more detailed structural
+	function external(){
+		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
+			.then( data => {
+				data.forEach( feature => {
+					var nearlon = feature.geometry.coordinates[ 0 ] , nearlat = feature.geometry.coordinates[ 1 ]
+					var nearlatlon = nearlat + "," + nearlon
 
-	// area
-				// less than 1/100 of a degress or ~1.1km
-				if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlatlon ] = feature
+					// don't override more detailed internal structural
+					structurals[ nearlatlon ] ? "" : structurals[ nearlatlon ] = feature  
 
-				// load area's random structure TODO
+		// area
+					// less than 1/100 of a degress or ~1.1km
+					if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlatlon ] = feature
 
-				// index
+					// load area's random structure TODO
 
+		// city
+
+				} )
 			} )
-		} )
-
+	}  // external()
 
 	</script>
 
@@ -115,13 +131,19 @@
 	-->
 	<style>
 		.actions > div { 
-			border-bottom:1px solid grey;
+			border-bottom:1px solid lightgrey;
 			width:100%;flex-direction:row;
 			height:2em;justify-content:start;
 			flex-wrap:nowrap;overflow:auto; 
 			padding:0 0 0.5em 0;
-			}
-		.actions > div > div { height:1.5em;margin:0.15em;border:1px solid grey;border-radius:1em;padding:0 1em;background:white; }
+		}
+		.actions > div > div { 
+			height:1.5em;
+			margin:0.15em;
+			padding:0 1em;
+			font-size:0.75em;
+			border-right:1px solid lightgrey;
+		}
 	</style>
 
 	<div class="actions">
