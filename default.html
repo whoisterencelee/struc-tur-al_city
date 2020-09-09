@@ -43,7 +43,7 @@
 	</div>
 
 	<!-- avatar -->
-	<div id="address" style="background:white;height:20vh;font-size:small;justify-content:end;">
+	<div id="address" style="background:white;height:20vh;font-size:small;justify-content:end;padding:0.5em 1em;">
 	</div>
 
 	<script>
@@ -55,7 +55,21 @@
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
 	// internal structural
-	var internal_index = elasticlunr( function(){ this.addField( 'action' ); this.setRef( 'latlon' ) } )
+	var index = elasticlunr( function(){ this.addField( 'action' ); this.setRef( 'latlon' ) } )
+
+	function buildActions( actions , lat , lon , DOMid ){
+		actions.forEach( action =>{
+			
+			index.addDoc( { lat: lon , lon : lon , action : action.description , url : action.url } ) 
+
+			if( typeof DOMid == "string" ){
+				var actionDOM = document.createElement( "div" )
+				actionDOM.textContent = action.description
+
+				$( DOMid ).appendChild( actionDOM )
+			}
+		} )
+	}  // buildActions()
 
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
@@ -67,41 +81,35 @@
 
 			// TODO private actions
 
-			if( data.actions ){  // build actions
-				data.actions.forEach( action =>{
-					internal_index.addDoc( { latlon : latlon , action : action.description , url : action.url } ) 
-
-					var actionDOM = document.createElement( "div" )
-					actionDOM.textContent = action.description
-					$('structure').appendChild( actionDOM )
-				} )
-			}
+			if( data.actions ) buildActions( data.actions , lat , lon , 'structure' )
 
 			external()
 		} )
 
 	// external structurals
 	var onekm = {}
-	var area_index = elasticlunr( function(){ this.addField( 'action'); this.setRef( 'latlon' ) } )
-	var city_index = elasticlunr( function(){ this.addField( 'action'); this.setRef( 'latlon' ) } )
 
 	function external(){
 		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
-			.then( data => {
+			.then( data => {  // this data doesn't have action yet
 				data.forEach( feature => {
-					var nearlon = feature.geometry.coordinates[ 0 ] , nearlat = feature.geometry.coordinates[ 1 ]
-					var nearlatlon = nearlat + "," + nearlon
+					var nlon = feature.geometry.coordinates[ 0 ] , nlat = feature.geometry.coordinates[ 1 ]
+					var nlatlon = nlat + "," + nlon
 
-					// don't override more detailed internal structural
-					structurals[ nearlatlon ] ? "" : structurals[ nearlatlon ] = feature  
-
-		// area
+	// area
 					// less than 1/100 of a degress or ~1.1km
-					if( Math.abs( lat - nearlat ) < 0.01 && Math.abs( lon - nearlon ) < 0.01 ) onekm[ nearlatlon ] = feature
+					if( Math.abs( lat - nlat ) < 0.01 && Math.abs( lon - nlon ) < 0.01 ){
+						// onekm[ nlatlon ] = feature
 
-					// load area's random structure TODO
-
-		// city
+						/*
+						fetch( proxy + "/s/" + lat + "," + lon ).then( r => r.json() )
+							.then( data => {
+								structurals[ nlatlon ] = data
+								if( data.actions ) buildActions( data.actions , nlat , nlon )
+							} )
+						*/
+					}
+	// city
 
 				} )
 			} )
