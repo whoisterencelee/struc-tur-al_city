@@ -42,7 +42,7 @@
 		</div>
 	</div>
 
-	<!-- address -->
+	<!-- address photo -->
 	<div id="address" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;padding:0.5em 1em;color:lightgrey;" onclick="resize=resize==null?$('address'):null" onmousemove="enlarge()" ondblclick="$('address').style.height=origsize;resize=null">
 	</div>
 	<script>
@@ -67,13 +67,10 @@
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
 	// internal structural
-	var index = elasticlunr( function(){ this.addField( 'action' ); this.setRef( 'latlon' ) } )
+	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
 
-	function buildActions( actions , lat , lon , DOMid ){
+	function actionsDOM( actions , latlon , DOMid ){
 		actions.forEach( action =>{
-			
-			index.addDoc( { lat: lon , lon : lon , action : action.description , url : action.url } ) 
-
 			if( typeof DOMid == "string" ){
 				var actionDOM = document.createElement( "div" )
 				actionDOM.textContent = action.description
@@ -81,7 +78,7 @@
 				$( DOMid ).appendChild( actionDOM )
 			}
 		} )
-	}  // buildActions()
+	}  // actionsDOM()
 
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
@@ -93,7 +90,14 @@
 
 			// TODO private actions
 
-			if( data.actions ) buildActions( data.actions , lat , lon , 'structure' )
+			if( data.actions ){
+				data.actions.forEach( action => {
+					action.latlon = latlon  // for later compare
+					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
+					index.addDoc( action )
+				} )
+				actionsDOM( data.actions , latlon , 'structure' )
+			}
 
 			external()
 		} )
@@ -117,7 +121,12 @@
 						fetch( proxy + "/s/" + lat + "," + lon ).then( r => r.json() )
 							.then( data => {
 								structurals[ nlatlon ] = data
-								if( data.actions ) buildActions( data.actions , nlat , nlon )
+								data.actions.forEach( action => {
+									action.latlon = nlatlon  // for later compare
+									action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
+									index.addDoc( action )
+								} )
+								if( data.actions ) actionsDOM( data.actions , nlat , nlon )
 							} )
 						*/
 					}
@@ -177,9 +186,24 @@
 
 	<form class="div" style="width:100%;flex-direction:row;">
 		<label style="width:100%;">
-			<input name="buid" type="text" placeholder="Interaction" style="width:100%;text-align:center;">
+			<input id="interaction" name="interaction" type="text" placeholder="Interaction" style="width:100%;text-align:center;" onkeyup="interact()">
 		</label>
 	</form>
+	<script>
+	function interact( term ){
+		term = term ? term : event.currentTarget.value
+		var result = index.search( term , {} )
+		var result_structure = []
+
+		result.forEach( r => {
+			if( r.doc.latlon == latlon ) result_structure.push( r.doc )
+			// elseif ( r.doc.latlon , latlon ) neighbors
+		} )
+
+		$('structure').innerHTML = ""
+		actionsDOM( result_structure , latlon , 'structure' )
+	}
+	</script>
 
 	<!-- notice -->
 	<div></div>
