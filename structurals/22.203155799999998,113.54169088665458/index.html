@@ -37,14 +37,26 @@
 
 	<!-- header -->
 	<div class="float" style="max-width:24em;right:0;">
-		<div style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
+		<div style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px black;">
 			<span style="margin:.5em 1em;" onclick="">Structural.City</span> 
 		</div>
 	</div>
 
-	<!-- avatar -->
-	<div id="address" style="background:white;height:20vh;font-size:small;justify-content:end;padding:0.5em 1em;">
+	<!-- address -->
+	<div id="address" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;padding:0.5em 1em;color:lightgrey;" onclick="resize=resize==null?$('address'):null" onmousemove="enlarge()" ondblclick="$('address').style.height=origsize;resize=null">
 	</div>
+	<script>
+	var resize = null , origsize = $("address").style.height
+	function enlarge(){
+		if( resize ){
+			var d = event.movementY
+			if( typeof d == "number" && d > 0 ){
+				var H = resize.clientHeight + d
+				resize.style.height = H > ( window.innerHeight - 10 ) ? window.innerHeight - 10 : H
+			}
+		}
+	}
+	</script>
 
 	<script>
 	var structurals = {}
@@ -169,7 +181,8 @@
 		</label>
 	</form>
 
-	<div><span style="background:darkred;color:lightgrey;box-shadow:0 0 2px 1px grey;padding:0 1em;">New Notice</span></div>
+	<!-- notice -->
+	<div></div>
 
 
 	<!-- banner -->
