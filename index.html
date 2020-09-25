@@ -75,7 +75,7 @@
 
 		// link
 		var latlon = lat + "," + lon
-		if( structurals[ latlon ] ) addressDOM += "<div><a href='./s/" + latlon + "'>" + latlon + "</a></div>" 
+		if( structurals[ latlon ] ) addressDOM += "<div><a href='./s/" + latlon + page + "'>" + latlon + "</a></div>" 
 		else addressDOM += "<div><a href='./s/new.html'>start managing</a></div>"
 
 		Object.entries( address ).forEach( kv => {
@@ -170,8 +170,9 @@
 
 
 	// load poi
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
 	var cities = {} , structurals = {}
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
+	var page = location.protocol == "file:" ? "/index.html" : ""
 
 	function loadStructurals(){
 		var b = map.getBounds() , bounds = Math.floor( b._southWest.lat ) + "," + Math.floor( b._northEast.lng )
