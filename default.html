@@ -43,10 +43,11 @@
 	</div>
 
 	<!-- address photo -->
-	<div id="address" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;padding:0.5em 1em;color:lightgrey;" onclick="resize=resize==null?$('address'):null" onmousemove="enlarge()" ondblclick="$('address').style.height=origsize;resize=null">
+	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;" onclick="resize=resize==null?$('photo'):null" onmousemove="enlarge()" ondblclick="$('photo').style.height=origsize;resize=null">
+		<p id="address" style="margin:0.5em;color:white;mix-blend-mode:difference;"></p>
 	</div>
 	<script>
-	var resize = null , origsize = $("address").style.height
+	var resize = null , origsize = $("photo").style.height
 	function enlarge(){
 		if( resize ){
 			var d = event.movementY
@@ -76,12 +77,7 @@
 		} )
 	}  // actionsDOM()
 
-	function isNeighbor( sqkm , latlon , natnon ){
-		var ll = latlon.split( "," ) , nll = latlon.split( "," )
-		return sqkm > Math.abs( ll[ 0 ] - nll[ 0 ] ) + Math.abs( ll[ 1 ] - nll[ 1 ] )
-	}
-
-	// internal structural
+	// internal structural (public facing)
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
@@ -91,6 +87,7 @@
 			$( 'address' ).innerHTML = address.slice( 0 , -2 )
 
 			// TODO private actions
+			// load using subscription
 
 			if( data.actions ){
 				data.actions.forEach( action => {
@@ -115,6 +112,7 @@
 					var natnon = nat + "," + non
 
 	// area
+
 					// less than 1/100 of a degress or ~1.1km
 					if( ( Math.abs( lat - nat ) < 0.01 && Math.abs( lon - non ) < 0.01 ) && ( non != lon && nat != lat ) ){
 						// neighbors[ natnon ] = feature
