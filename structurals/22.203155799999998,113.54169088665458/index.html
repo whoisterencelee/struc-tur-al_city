@@ -66,20 +66,22 @@
 	$( 'address' ).textContent = latlon
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
-	// internal structural
 	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
 
 	function actionsDOM( actions , latlon , DOMid ){
 		actions.forEach( action =>{
-			if( typeof DOMid == "string" ){
-				var actionDOM = document.createElement( "div" )
-				actionDOM.textContent = action.description
-
-				$( DOMid ).appendChild( actionDOM )
-			}
+			var actionDOM = document.createElement( "div" )
+			actionDOM.textContent = action.description
+			$( DOMid ).appendChild( actionDOM )
 		} )
 	}  // actionsDOM()
 
+	function isNeighbor( sqkm , latlon , natnon ){
+		var ll = latlon.split( "," ) , nll = latlon.split( "," )
+		return sqkm > Math.abs( ll[ 0 ] - nll[ 0 ] ) + Math.abs( ll[ 1 ] - nll[ 1 ] )
+	}
+
+	// internal structural
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
@@ -103,32 +105,30 @@
 		} )
 
 	// external structurals
-	var onekm = {}
+	var neighbors = {}
 
 	function external(){
 		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
 			.then( data => {  // this data doesn't have action yet
 				data.forEach( feature => {
-					var nlon = feature.geometry.coordinates[ 0 ] , nlat = feature.geometry.coordinates[ 1 ]
-					var nlatlon = nlat + "," + nlon
+					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
+					var natnon = nat + "," + non
 
 	// area
 					// less than 1/100 of a degress or ~1.1km
-					if( Math.abs( lat - nlat ) < 0.01 && Math.abs( lon - nlon ) < 0.01 ){
-						// onekm[ nlatlon ] = feature
+					if( ( Math.abs( lat - nat ) < 0.01 && Math.abs( lon - non ) < 0.01 ) && ( non != lon && nat != lat ) ){
+						// neighbors[ natnon ] = feature
 
-						/*
-						fetch( proxy + "/s/" + lat + "," + lon ).then( r => r.json() )
+						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
 							.then( data => {
-								structurals[ nlatlon ] = data
+								structurals[ natnon ] = data
 								data.actions.forEach( action => {
-									action.latlon = nlatlon  // for later compare
-									action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
+									action.latlon = natnon  // for later compare
+									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
 									index.addDoc( action )
 								} )
-								if( data.actions ) actionsDOM( data.actions , nlat , nlon )
+								if( data.actions ) actionsDOM( data.actions , natnon , 'area' )
 							} )
-						*/
 					}
 	// city
 
@@ -178,7 +178,7 @@
 	<div class="actions">
 		<div id="structure"><!-- structure -->
 		</div>
-		<div><!-- area -->
+		<div id="area"><!-- area -->
 		</div>
 		<div style="border:0;"><!-- city -->
 		</div>
@@ -186,7 +186,7 @@
 
 	<form class="div" style="width:100%;flex-direction:row;">
 		<label style="width:100%;">
-			<input id="interaction" name="interaction" type="text" placeholder="Interaction" style="width:100%;text-align:center;" onkeyup="interact()">
+			<input id="interaction" name="interaction" type="text" placeholder="interact" style="width:100%;text-align:center;" onkeyup="interact()">
 		</label>
 	</form>
 	<script>
