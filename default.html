@@ -69,10 +69,10 @@
 
 	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
 
-	function actionsDOM( actions , latlon , DOMid ){
+	function actionsDOM( actions , latlon , DOMid , label = "" ){
 		actions.forEach( action =>{
 			var actionDOM = document.createElement( "div" )
-			actionDOM.textContent = action.description
+			actionDOM.innerHTML = action.description + " " + label
 			$( DOMid ).appendChild( actionDOM )
 		} )
 	}  // actionsDOM()
@@ -114,7 +114,8 @@
 	// area
 
 					// less than 1/100 of a degress or ~1.1km
-					if( ( Math.abs( lat - nat ) < 0.01 && Math.abs( lon - non ) < 0.01 ) && ( non != lon && nat != lat ) ){
+					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
+					if( dist < 0.02 && ( non != lon && nat != lat ) ){
 						// neighbors[ natnon ] = feature
 
 						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
@@ -125,7 +126,7 @@
 									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
 									index.addDoc( action )
 								} )
-								if( data.actions ) actionsDOM( data.actions , natnon , 'area' )
+								if( data.actions ) actionsDOM( data.actions , natnon , 'area' , " (" + Math.floor( dist * 100 ) + "km)" )
 							} )
 					}
 	// city
@@ -170,6 +171,7 @@
 			padding:0 1em;
 			font-size:0.75em;
 			border-right:1px solid lightgrey;
+			min-width:max-content;  /* important */
 		}
 	</style>
 
