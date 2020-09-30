@@ -113,20 +113,32 @@
 
 	// area
 
-					// less than 1/100 of a degress or ~1.1km
+					// less than 2/100 of a degress or ~2.2km
 					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
 					if( dist < 0.02 && ( non != lon && nat != lat ) ){
-						// neighbors[ natnon ] = feature
 
 						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
 							.then( data => {
 								structurals[ natnon ] = data
+								neighbors[ natnon ] = []
 								data.actions.forEach( action => {
+
+									if( !action.location ) return // service is internal by default
+
+									// check if neighbor service is bounded
+									if( ! ( Array.isArray( action.location ) &&
+										action.location[ 0 ][ 0 ] <= nat &&
+										action.location[ 0 ][ 1 ] <= non &&
+										action.location[ 1 ][ 0 ] >= nat && 
+										action.location[ 1 ][ 1 ] >= non ) ) return
+
 									action.latlon = natnon  // for later compare
 									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
+									neighbors[ natnon ].push( action )
+
 									index.addDoc( action )
 								} )
-								if( data.actions ) actionsDOM( data.actions , natnon , 'area' , " (" + Math.floor( dist * 100 ) + "km)" )
+								if( neighbors[ natnon ].length > 0 ) actionsDOM( neighbors[ natnon ] , natnon , 'area' , " (" + Math.floor( dist * 100000 ) + "m)" )
 							} )
 					}
 	// city
