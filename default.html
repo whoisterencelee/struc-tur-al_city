@@ -69,15 +69,15 @@
 
 	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
 
-	function actionsDOM( actions , latlon , DOMid , label = "" ){
+	function actionsDOM( actions , DOMid , label = "" ){
 		actions.forEach( action =>{
 			var actionDOM = document.createElement( "div" )
-			actionDOM.innerHTML = action.description + " " + label
+			actionDOM.innerHTML = action.description + ( label ? " " + label : "" )
 			$( DOMid ).appendChild( actionDOM )
 		} )
 	}  // actionsDOM()
 
-	// internal structural (public facing)
+	// internal structural
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
@@ -95,14 +95,14 @@
 					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
 					index.addDoc( action )
 				} )
-				actionsDOM( data.actions , latlon , 'structure' )
+				actionsDOM( data.actions , 'structure' )
 			}
 
 			external()
 		} )
 
 	// external structurals
-	var neighbors = {}
+	var neighbors = []
 
 	function external(){
 		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
@@ -110,39 +110,41 @@
 				data.forEach( feature => {
 					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
 					var natnon = nat + "," + non
+	// city
+					var action = feature.action
+					// TODO index city actions managed by service provider
 
 	// area
-
-					// less than 2/100 of a degress or ~2.2km
 					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
-					if( dist < 0.02 && ( non != lon && nat != lat ) ){
+					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
 
 						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
 							.then( data => {
 								structurals[ natnon ] = data
-								neighbors[ natnon ] = []
+
 								data.actions.forEach( action => {
 
-									if( !action.location ) return // service is internal by default
-
-									// check if neighbor service is bounded
-									if( ! ( Array.isArray( action.location ) &&
+									action.latlon = natnon  // for later compare
+									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
+									index.addDoc( action )  // searchable regardless
+	// neighbors
+									// by default accept neighborhood action less than 600m
+									// but check to see if the service is bounded
+									if( dist > 0.006 && ! ( Array.isArray( action.location ) &&
 										action.location[ 0 ][ 0 ] <= nat &&
 										action.location[ 0 ][ 1 ] <= non &&
 										action.location[ 1 ][ 0 ] >= nat && 
 										action.location[ 1 ][ 1 ] >= non ) ) return
 
-									action.latlon = natnon  // for later compare
-									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
-									neighbors[ natnon ].push( action )
+									// TODO randomize
+									neighbors.push( action )
 
-									index.addDoc( action )
 								} )
-								if( neighbors[ natnon ].length > 0 ) actionsDOM( neighbors[ natnon ] , natnon , 'area' , " (" + Math.floor( dist * 100000 ) + "m)" )
+
+								// update neighbor list
+								actionsDOM( neighbors , 'area' , " (" + Math.floor( dist * 100000 ) + "m)" )
 							} )
 					}
-	// city
-
 				} )
 			} )
 	}  // external()
@@ -213,7 +215,7 @@
 		} )
 
 		$('structure').innerHTML = ""
-		actionsDOM( result_structure , latlon , 'structure' )
+		actionsDOM( result_structure , 'structure' )
 	}
 	</script>
 
