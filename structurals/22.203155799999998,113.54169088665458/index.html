@@ -15,7 +15,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
 
-  <script src="http://elasticlunr.com/elasticlunr.min.js"></script>
+  <script src="../js/elasticlunr.min.js"></script>
 
 </head>
 
@@ -43,10 +43,11 @@
 	</div>
 
 	<!-- address photo -->
-	<div id="address" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;padding:0.5em 1em;color:lightgrey;" onclick="resize=resize==null?$('address'):null" onmousemove="enlarge()" ondblclick="$('address').style.height=origsize;resize=null">
+	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;" onclick="resize=resize==null?$('photo'):null" onmousemove="enlarge()" ondblclick="$('photo').style.height=origsize;resize=null">
+		<p id="address" style="margin:0.5em;color:white;mix-blend-mode:difference;"></p>
 	</div>
 	<script>
-	var resize = null , origsize = $("address").style.height
+	var resize = null , origsize = $("photo").style.height
 	function enlarge(){
 		if( resize ){
 			var d = event.movementY
@@ -60,7 +61,7 @@
 
 	<script>
 	var structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : location.href
 
 	var latlon = document.location.pathname.split('/').slice(-2)[0]
 	$( 'address' ).textContent = latlon
@@ -68,18 +69,13 @@
 
 	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
 
-	function actionsDOM( actions , latlon , DOMid ){
+	function actionsDOM( actions , DOMid , label = "" ){
 		actions.forEach( action =>{
 			var actionDOM = document.createElement( "div" )
-			actionDOM.textContent = action.description
+			actionDOM.innerHTML = action.description + ( label ? " " + label : "" )
 			$( DOMid ).appendChild( actionDOM )
 		} )
 	}  // actionsDOM()
-
-	function isNeighbor( sqkm , latlon , natnon ){
-		var ll = latlon.split( "," ) , nll = latlon.split( "," )
-		return sqkm > Math.abs( ll[ 0 ] - nll[ 0 ] ) + Math.abs( ll[ 1 ] - nll[ 1 ] )
-	}
 
 	// internal structural
 	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
@@ -91,6 +87,7 @@
 			$( 'address' ).innerHTML = address.slice( 0 , -2 )
 
 			// TODO private actions
+			// load using subscription
 
 			if( data.actions ){
 				data.actions.forEach( action => {
@@ -98,14 +95,15 @@
 					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
 					index.addDoc( action )
 				} )
-				actionsDOM( data.actions , latlon , 'structure' )
+				actionsDOM( data.actions , 'structure' )
 			}
 
 			external()
 		} )
 
 	// external structurals
-	var neighbors = {}
+	var neighbors = []
+	var city = []
 
 	function external(){
 		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
@@ -113,25 +111,51 @@
 				data.forEach( feature => {
 					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
 					var natnon = nat + "," + non
+	// city
+					if( Array.isArray( feature.actions ) ){ // index city actions managed by service provider
+						feature.actions.forEach( action => {
+							action.latlon = natnon
+							action.id = natnon + "/" + action.description
+							index.addDoc( action )
+							// TODO randomize insert
+							city.push( action )
+						} )
+						actionsDOM( city , 'city' , " (" + Math.floor( dist * 1000 ) + "km)" )
+					}
 
 	// area
-					// less than 1/100 of a degress or ~1.1km
-					if( ( Math.abs( lat - nat ) < 0.01 && Math.abs( lon - non ) < 0.01 ) && ( non != lon && nat != lat ) ){
-						// neighbors[ natnon ] = feature
+					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
+					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
 
 						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
 							.then( data => {
-								structurals[ natnon ] = data
+								structurals[ natnon ] = data  // save structural data
+
+								if( ! Array.isArray( data.actions ) ) return
+
 								data.actions.forEach( action => {
+
 									action.latlon = natnon  // for later compare
 									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
-									index.addDoc( action )
+									index.addDoc( action )  // searchable regardless
+	// neighbors
+									// by default accept neighborhood action less than 600m
+									// but check to see if the service is bounded
+									if( dist > 0.006 && ! ( Array.isArray( action.location ) &&
+										action.location[ 0 ][ 0 ] <= nat &&
+										action.location[ 0 ][ 1 ] <= non &&
+										action.location[ 1 ][ 0 ] >= nat && 
+										action.location[ 1 ][ 1 ] >= non ) ) return
+
+									// TODO randomly insert action
+									neighbors.push( action )
+
 								} )
-								if( data.actions ) actionsDOM( data.actions , natnon , 'area' )
+
+								// update neighbor list
+								actionsDOM( neighbors , 'neighbor' , " (" + Math.floor( dist * 100000 ) + "m)" )
 							} )
 					}
-	// city
-
 				} )
 			} )
 	}  // external()
@@ -172,15 +196,16 @@
 			padding:0 1em;
 			font-size:0.75em;
 			border-right:1px solid lightgrey;
+			min-width:max-content;  /* important */
 		}
 	</style>
 
 	<div class="actions">
 		<div id="structure"><!-- structure -->
 		</div>
-		<div id="area"><!-- area -->
+		<div id="neighbor"><!-- neighbor -->
 		</div>
-		<div style="border:0;"><!-- city -->
+		<div id="city" style="border:0;"><!-- city -->
 		</div>
 	</div>
 
@@ -201,7 +226,7 @@
 		} )
 
 		$('structure').innerHTML = ""
-		actionsDOM( result_structure , latlon , 'structure' )
+		actionsDOM( result_structure , 'structure' )
 	}
 	</script>
 
