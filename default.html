@@ -15,7 +15,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
 
-  <script src="http://elasticlunr.com/elasticlunr.min.js"></script>
+  <script src="../js/elasticlunr.min.js"></script>
 
 </head>
 
@@ -103,6 +103,7 @@
 
 	// external structurals
 	var neighbors = []
+	var city = []
 
 	function external(){
 		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
@@ -111,8 +112,16 @@
 					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
 					var natnon = nat + "," + non
 	// city
-					var action = feature.action
-					// TODO index city actions managed by service provider
+					if( Array.isArray( feature.actions ) ){ // index city actions managed by service provider
+						feature.actions.forEach( action => {
+							action.latlon = natnon
+							action.id = natnon + "/" + action.description
+							index.addDoc( action )
+							// TODO randomize insert
+							city.push( action )
+						} )
+						actionsDOM( city , 'city' , " (" + Math.floor( dist * 1000 ) + "km)" )
+					}
 
 	// area
 					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
@@ -120,7 +129,9 @@
 
 						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
 							.then( data => {
-								structurals[ natnon ] = data
+								structurals[ natnon ] = data  // save structural data
+
+								if( ! Array.isArray( data.actions ) ) return
 
 								data.actions.forEach( action => {
 
@@ -136,13 +147,13 @@
 										action.location[ 1 ][ 0 ] >= nat && 
 										action.location[ 1 ][ 1 ] >= non ) ) return
 
-									// TODO randomize
+									// TODO randomly insert action
 									neighbors.push( action )
 
 								} )
 
 								// update neighbor list
-								actionsDOM( neighbors , 'area' , " (" + Math.floor( dist * 100000 ) + "m)" )
+								actionsDOM( neighbors , 'neighbor' , " (" + Math.floor( dist * 100000 ) + "m)" )
 							} )
 					}
 				} )
@@ -192,9 +203,9 @@
 	<div class="actions">
 		<div id="structure"><!-- structure -->
 		</div>
-		<div id="area"><!-- area -->
+		<div id="neighbor"><!-- neighbor -->
 		</div>
-		<div style="border:0;"><!-- city -->
+		<div id="city" style="border:0;"><!-- city -->
 		</div>
 	</div>
 
