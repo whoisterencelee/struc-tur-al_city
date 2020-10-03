@@ -51,17 +51,14 @@
 	function enlarge(){
 		if( resize ){
 			var d = event.movementY
-			if( typeof d == "number" && d > 0 ){
-				var H = resize.clientHeight + d
-				resize.style.height = H > ( window.innerHeight - 10 ) ? window.innerHeight - 10 : H
-			}
+			if( typeof d == "number" && d > 0 ) resize.style.height = resize.clientHeight + d
 		}
 	}
 	</script>
 
 	<script>
 	var structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : location.href
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : location.origin
 
 	var latlon = document.location.pathname.split('/').slice(-2)[0]
 	$( 'address' ).textContent = latlon

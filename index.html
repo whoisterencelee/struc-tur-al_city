@@ -171,7 +171,7 @@
 
 	// load poi
 	var cities = {} , structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : location.href
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : location.origin
 	var page = location.protocol == "file:" ? "/index.html" : ""
 
 	function loadStructurals(){
