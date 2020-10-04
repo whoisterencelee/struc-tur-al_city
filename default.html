@@ -75,7 +75,7 @@
 	}  // actionsDOM()
 
 	// internal structural
-	var structure = []
+	var structureActions = []
 	fetch( "structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
@@ -92,8 +92,8 @@
 					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
 					action.dist = 0
 					index.addDoc( action )
+					structureActions.push( action )  // default structure actions
 				} )
-				structure.push( data.actions )
 				actionsDOM( data.actions , 'structure' )
 			}
 
@@ -101,8 +101,8 @@
 		} )
 
 	// external structurals
-	var neighbors = []
-	var city = []
+	var neighborActions = []
+	var cityActions = []
 
 	function external(){
 		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
@@ -119,9 +119,9 @@
 							action.dist = dist
 							index.addDoc( action )
 							// TODO randomize insert
-							city.push( action )
+							cityActions.push( action )
 						} )
-						actionsDOM( city , 'city' , " (" + Math.floor( dist * 1000 ) + "km)" )
+						actionsDOM( cityActions , 'city' , " (" + Math.floor( dist * 1000 ) + "km)" )
 					}
 
 	// area
@@ -150,12 +150,12 @@
 									index.addDoc( action )  // searchable regardless
 
 									// TODO randomly insert action
-									neighbors.push( action )
+									neighborActions.push( action )
 
 								} )
 
 								// update neighbor list
-								actionsDOM( neighbors , 'neighbor' , " (" + Math.floor( dist * 100000 ) + "m)" )
+								actionsDOM( neighborActions , 'neighbor' , " (" + Math.floor( dist * 100000 ) + "m)" )
 							} )
 					}
 				} )
@@ -220,9 +220,12 @@
 	function interact( term ){
 		term = term ? term : event.currentTarget.value
 		if( term == "" ){
-			actionsDOM( structure , 'structure' )
-			actionsDOM( neighbors , 'neighbor' )
-			actionsDOM( city , 'city' )
+			$('structure').innerHTML = ""
+			$('neighbor').innerHTML = ""
+			$('city').innerHTML = ""
+			actionsDOM( structureActions , 'structure' )
+			actionsDOM( neighborActions , 'neighbor' )
+			actionsDOM( cityActions , 'city' )
 			return
 		}
 		var result = index.search( term , {} )
