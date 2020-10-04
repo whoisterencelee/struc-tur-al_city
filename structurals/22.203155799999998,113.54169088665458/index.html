@@ -58,7 +58,7 @@
 
 	<script>
 	var structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : location.origin
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : "../.."
 
 	var latlon = document.location.pathname.split('/').slice(-2)[0]
 	$( 'address' ).textContent = latlon
@@ -75,7 +75,7 @@
 	}  // actionsDOM()
 
 	// internal structural
-	fetch( proxy + "/s/" + latlon + "/structural.json" ).then( r => r.json() )
+	fetch( "structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
 
