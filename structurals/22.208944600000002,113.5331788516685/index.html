@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>structrual.city</title>
+  <title>structural.city</title>
   <meta name="description" content="smart city for everyone">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -75,6 +75,7 @@
 	}  // actionsDOM()
 
 	// internal structural
+	var structure = []
 	fetch( "structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
@@ -85,13 +86,14 @@
 
 			// TODO private actions
 			// load using subscription
-
 			if( data.actions ){
 				data.actions.forEach( action => {
 					action.latlon = latlon  // for later compare
 					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
+					action.dist = 0
 					index.addDoc( action )
 				} )
+				structure.push( data.actions )
 				actionsDOM( data.actions , 'structure' )
 			}
 
@@ -108,11 +110,13 @@
 				data.forEach( feature => {
 					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
 					var natnon = nat + "," + non
+					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
 	// city
 					if( Array.isArray( feature.actions ) ){ // index city actions managed by service provider
 						feature.actions.forEach( action => {
 							action.latlon = natnon
 							action.id = natnon + "/" + action.description
+							action.dist = dist
 							index.addDoc( action )
 							// TODO randomize insert
 							city.push( action )
@@ -121,7 +125,6 @@
 					}
 
 	// area
-					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
 					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
 
 						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
@@ -134,15 +137,17 @@
 
 									action.latlon = natnon  // for later compare
 									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
-									index.addDoc( action )  // searchable regardless
+									action.dist = dist
 	// neighbors
 									// by default accept neighborhood action less than 600m
 									// but check to see if the service is bounded
 									if( dist > 0.006 && ! ( Array.isArray( action.location ) &&
-										action.location[ 0 ][ 0 ] <= nat &&
-										action.location[ 0 ][ 1 ] <= non &&
-										action.location[ 1 ][ 0 ] >= nat && 
-										action.location[ 1 ][ 1 ] >= non ) ) return
+										action.location[ 0 ][ 0 ] <= lat &&
+										action.location[ 0 ][ 1 ] <= lon &&
+										action.location[ 1 ][ 0 ] >= lat && 
+										action.location[ 1 ][ 1 ] >= lon ) ) return
+
+									index.addDoc( action )  // searchable regardless
 
 									// TODO randomly insert action
 									neighbors.push( action )
@@ -214,16 +219,35 @@
 	<script>
 	function interact( term ){
 		term = term ? term : event.currentTarget.value
+		if( term == "" ){
+			actionsDOM( structure , 'structure' )
+			actionsDOM( neighbors , 'neighbor' )
+			actionsDOM( city , 'city' )
+			return
+		}
 		var result = index.search( term , {} )
-		var result_structure = []
+		var result_structure = [] , result_neighbors = [] , result_city = []
 
 		result.forEach( r => {
-			if( r.doc.latlon == latlon ) result_structure.push( r.doc )
-			// elseif ( r.doc.latlon , latlon ) neighbors
+			var action = r.doc
+			if( action.latlon == latlon ) result_structure.push( action )
+			else if ( ( ! Array.isArray( action.location ) ) || (  // if not bounded
+				action.location[ 0 ][ 0 ] <= lat &&  // check if bounded
+				action.location[ 0 ][ 1 ] <= lon &&
+				action.location[ 1 ][ 0 ] >= lat && 
+				action.location[ 1 ][ 1 ] >= lon
+			) ) {
+				if( action.dist <= 0.006 ) result_neighbors.push( action )
+				else result_city.push( action )
+			}
 		} )
 
 		$('structure').innerHTML = ""
+		$('neighbor').innerHTML = ""
+		$('city').innerHTML = ""
 		actionsDOM( result_structure , 'structure' )
+		actionsDOM( result_neighbors , 'neighbor' )
+		actionsDOM( result_city , 'city' )
 	}
 	</script>
 
