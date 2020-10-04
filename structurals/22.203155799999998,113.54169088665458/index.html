@@ -66,10 +66,14 @@
 
 	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
 
-	function actionsDOM( actions , DOMid , label = "" ){
+	function actionsDOM( actions , DOMid , dist , label = "" ){
 		actions.forEach( action =>{
 			var actionDOM = document.createElement( "div" )
-			actionDOM.innerHTML = action.description + ( label ? " " + label : "" )
+			actionDOM.innerHTML = action.description
+				+ ( action.dist && dist ? 
+					" (" + ( dist == "m" ? Math.round( action.dist * 100000 ) + "m)" : Math.round( action.dist * 1000 ) + "km)" ) 
+					: "" )
+				+ ( label ? " " + label : "" )
 			$( DOMid ).appendChild( actionDOM )
 		} )
 	}  // actionsDOM()
@@ -121,7 +125,7 @@
 							// TODO randomize insert
 							cityActions.push( action )
 						} )
-						actionsDOM( cityActions , 'city' , " (" + Math.floor( dist * 1000 ) + "km)" )
+						actionsDOM( cityActions , 'city' , "km" ) 
 					}
 
 	// area
@@ -155,7 +159,7 @@
 								} )
 
 								// update neighbor list
-								actionsDOM( neighborActions , 'neighbor' , " (" + Math.floor( dist * 100000 ) + "m)" )
+								actionsDOM( neighborActions , 'neighbor' , "m" )
 							} )
 					}
 				} )
@@ -213,7 +217,7 @@
 
 	<form class="div" style="width:100%;flex-direction:row;">
 		<label style="width:100%;">
-			<input id="interaction" name="interaction" type="text" placeholder="interact" style="width:100%;text-align:center;" onkeyup="interact()">
+			<input id="interaction" name="interaction" type="text" placeholder="interact" style="height:2.5em;width:100%;text-align:center;" onkeyup="interact()">
 		</label>
 	</form>
 	<script>
@@ -224,8 +228,8 @@
 			$('neighbor').innerHTML = ""
 			$('city').innerHTML = ""
 			actionsDOM( structureActions , 'structure' )
-			actionsDOM( neighborActions , 'neighbor' )
-			actionsDOM( cityActions , 'city' )
+			actionsDOM( neighborActions , 'neighbor' , "m" )
+			actionsDOM( cityActions , 'city' , "km" )
 			return
 		}
 		var result = index.search( term , {} )
@@ -249,8 +253,8 @@
 		$('neighbor').innerHTML = ""
 		$('city').innerHTML = ""
 		actionsDOM( result_structure , 'structure' )
-		actionsDOM( result_neighbors , 'neighbor' )
-		actionsDOM( result_city , 'city' )
+		actionsDOM( result_neighbors , 'neighbor' , "m" )
+		actionsDOM( result_city , 'city' , "km" )
 	}
 	</script>
 
