@@ -37,9 +37,11 @@
 
 	<!-- header -->
 	<div class="float" style="max-width:24em;right:0;">
+		<a href="https://structural.city">
 		<div style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px black;">
-			<span style="margin:.5em 1em;" onclick="">Structural.City</span> 
+			<span style="margin:.5em 1em;font-size:0.7em;" onclick="">structural.city</span> 
 		</div>
+		</a>
 	</div>
 
 	<!-- address photo -->
@@ -58,10 +60,11 @@
 
 	<script>
 	var structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : "../.."
 
 	var latlon = document.location.pathname.split('/').slice(-2)[0]
 	$( 'address' ).textContent = latlon
+	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/" : ""
+
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
 	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
@@ -71,7 +74,7 @@
 			var actionDOM = document.createElement( "div" )
 			actionDOM.innerHTML = action.description
 				+ ( action.dist && dist ? 
-					" (" + ( dist == "m" ? Math.round( action.dist * 100000 ) + "m)" : Math.round( action.dist * 1000 ) + "km)" ) 
+					" (" + ( dist == "m" ? Math.round( action.dist * 100000 ) + "m)" : Math.round( action.dist * 100 ) + "km)" ) 
 					: "" )
 				+ ( label ? " " + label : "" )
 			$( DOMid ).appendChild( actionDOM )
@@ -80,7 +83,7 @@
 
 	// internal structural
 	var structureActions = []
-	fetch( "structural.json" ).then( r => r.json() )
+	fetch( proxy + "structural.json" ).then( r => r.json() )
 		.then( data => {
 			structurals[ latlon ] = data  // save the structural properties and actions
 
@@ -109,7 +112,7 @@
 	var cityActions = []
 
 	function external(){
-		fetch( proxy + "/c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
+		fetch( proxy + "../../c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
 			.then( data => {  // this data doesn't have action yet
 				data.forEach( feature => {
 					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
@@ -131,7 +134,7 @@
 	// area
 					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
 
-						fetch( proxy + "/s/" + natnon + "/structural.json" ).then( r => r.json() )
+						fetch( proxy + "../../s/" + natnon + "/structural.json" ).then( r => r.json() )
 							.then( data => {
 								structurals[ natnon ] = data  // save structural data
 
@@ -215,7 +218,7 @@
 		</div>
 	</div>
 
-	<form class="div" style="width:100%;flex-direction:row;">
+	<form class="div" style="width:100%;flex-direction:row;" onsubmit="false">
 		<label style="width:100%;">
 			<input id="interaction" name="interaction" type="text" placeholder="interact" style="height:2.5em;width:100%;text-align:center;" onkeyup="interact()">
 		</label>
@@ -244,19 +247,31 @@
 				action.location[ 1 ][ 0 ] >= lat && 
 				action.location[ 1 ][ 1 ] >= lon
 			) ) {
-				if( action.dist <= 0.006 ) result_neighbors.push( action )
+				if( action.dist <= 0.02 ) result_neighbors.push( action )
 				else result_city.push( action )
 			}
 		} )
 
+		if( result.length == 0 ){
+			var action = {}
+			action.description = term
+			action.url = "add.html"
+			action.latlon = latlon  // for later compare
+			action.id = latlon + "/" + action.description
+			action.dist = 0
+			result_structure.push( action )
+		}
+
 		$('structure').innerHTML = ""
 		$('neighbor').innerHTML = ""
 		$('city').innerHTML = ""
-		actionsDOM( result_structure , 'structure' )
+		actionsDOM( result_structure , 'structure' , null , result.length == 0 ? " +" : null )
 		actionsDOM( result_neighbors , 'neighbor' , "m" )
 		actionsDOM( result_city , 'city' , "km" )
 	}
 	</script>
+
+	<!-- subscription -->
 
 	<!-- notice -->
 	<div></div>

@@ -39,9 +39,9 @@
 
 	<!-- header -->
 	<div class="float" style="max-width:24em;width:85vw;right:0;">
-		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:2px 0;" onsubmit="return false">
+		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
 			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
-				<span style="margin:.5em 1em;" onclick="clickLocate()">Structural.City</span> 
+				<span style="margin:.5em 1em;" onclick="clickLocate()">structural.city</span> 
 				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="typeLocate()">
 			</label>
 		</form>
@@ -165,13 +165,13 @@
 	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
 		minZoom: 2,
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | supported by <a href="http://www.fdct.gov.mo">FDCT.gov.mo</a>'
 		}).addTo( map )
 
 
 	// load poi
 	var cities = {} , structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : "."
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
 	var page = location.protocol == "file:" ? "/index.html" : ""
 
 	function loadStructurals(){
