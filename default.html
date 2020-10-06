@@ -45,26 +45,17 @@
 	</div>
 
 	<!-- address photo -->
-	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;height:20vh;font-size:small;justify-content:end;" 
-		onclick="resize=resize==null?$('photo'):null" 
-		onmousemove="enlarge()" 
-		ondblclick="$('photo').style.height=origsize;resize=null" 
-		ontouchstart="resize=resize==null?$('photo'):null;touchY=event.changedTouches[0].clientY" 
-		ontouchmove="enlarge()"
-		>
-		<p id="address" style="margin:0.5em;color:white;mix-blend-mode:difference;"></p>
+	<style>
+		#photo:hover {height:100vh;}
+		#photo:focus {height:100vh;}
+		#photo:focus-within {height:100vh;}
+	</style>
+	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;font-size:small;justify-content:end;" >
+		<p id="address" tabindex=1 style="margin:0.5em;margin-top:2em;color:white;mix-blend-mode:difference;"></p>
 	</div>
-	<script>
-	var resize = null , origsize = $("photo").style.height , touchY = 0
-	function enlarge(){
-		if( resize ){
-			if( event.changedTouches ) var d = touchY - event.changedTouches[ 0 ].clientY
-			else var d = event.movementY
-			if( typeof d == "number" && d > 0 ) resize.style.height = resize.clientHeight + d
-		}
-	}
-	</script>
 
+
+	<!-- structural -->
 	<script>
 	var structurals = {}
 
