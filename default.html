@@ -70,10 +70,21 @@ function store( dbname , data , func = ( stored ) => console.log( "stored " + JS
 	try{
 	if( !db[ dbname ] ) openDb( dbname , () => store( dbname , data , func ) )
 	else{
-		db[ dbname ].transaction( dbname , 'readwrite' ).objectStore( dbname ).add( data ).onsuccess = ( evt ) => {
-			data[ dbschemas[ dbname ].keyPath ] = evt.target.result  // save the index into the returned obj
-			func( data )
+		if( dbschemas[ dbname ].keyPath ){ 	// data = object
+			var dbreq = db[ dbname ].transaction( dbname , 'readwrite' ).objectStore( dbname ).put( data )
+			dbreq.onsuccess = ( evt ) => {
+				data[ dbschemas[ dbname ].keyPath ] = evt.target.result  // save the index into the returned obj
+				func( data )
 			}
+			dbreq.onerror = ( evt ) => console.log( evt )
+		} else {				// data = [ key , value ]
+			var dbreq = db[ dbname ].transaction( dbname , 'readwrite' ).objectStore( dbname ).put( data[ 1 ] , data[ 0 ] )
+			dbreq.onsuccess = ( evt ) => {
+				data.push( evt.target.result ) // [ key , value , result ]
+				func( data )
+			}
+			dbreq.onerror = ( evt ) => console.log( evt )
+		}
 	} // end of else
 	} catch( e ){
 		// TODO need to handle full storage
