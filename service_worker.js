@@ -42,7 +42,7 @@ function openDb( dbname , func ) {
 				//dbname , { keyPath : dbschemas[ dbname ].keyPath } );
 				//dbname , { keyPath: 'id', autoIncrement: true });
 		)
-		dbschemas[ dbname ].indices.forEach( index => objstore.createIndex( index , index , { unique: false }) )
+		if( Array.isArray( dbschemas[ dbname ].indices ) ) dbschemas[ dbname ].indices.forEach( index => objstore.createIndex( index , index , { unique: false }) )
 		// unique = false allow insert of same key
 	}
 }

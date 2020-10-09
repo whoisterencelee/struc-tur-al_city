@@ -35,6 +35,100 @@
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
+	<script>
+// https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+var dbschemas = {} 
+dbschemas[ "inbox" ] = { version : 1 , keyPath : "n" , autoIncrement : true , indices : [ 'time' ] }  // sort later based on url
+dbschemas[ location.pathname ] = { version : 1 }  // storing page specific information, e.g. subscription
+
+var db = {}
+function openDb( dbname , func ) {
+	console.log("openDb ...")
+	var req = indexedDB.open( dbname , dbschemas[ dbname ].version )
+	req.onsuccess = function (evt) {
+		// Equal to: db = req.result;
+		db[ dbname ] = this.result;
+		console.log("openDb DONE");
+		if( func ) func()
+	}
+	req.onerror = function (evt) {
+		console.error("openDb:", evt.target.errorCode);
+	}
+	req.onupgradeneeded = function (evt) {
+		console.log("openDb.onupgradeneeded");
+		var objstore = evt.currentTarget.result.createObjectStore(
+				dbname , dbschemas[ dbname ] 
+				//dbname , { keyPath : dbschemas[ dbname ].keyPath } );
+				//dbname , { keyPath: 'id', autoIncrement: true });
+		)
+		dbschemas[ dbname ].indices.forEach( index => objstore.createIndex( index , index , { unique: fals }) )
+		// unique = false allow insert of same key
+	}
+}
+
+function store( dbname , data , func = ( stored ) => console.log( "stored " + JSON.stringify( stored ) ) ){
+	try{
+	if( !db[ dbname ] ) openDb( dbname , () => store( dbname , data , func ) )
+	else{
+		db[ dbname ].transaction( dbname , 'readwrite' ).objectStore( dbname ).add( data ).onsuccess = ( evt ) => {
+			data[ dbschemas[ dbname ].keyPath ] = evt.target.result  // save the index into the returned obj
+			func( data )
+			}
+	} // end of else
+	} catch( e ){
+		// TODO need to handle full storage
+		console.log( e + " : problem storing : " + JSON.stringify( data ) )
+		func( data )  // forgiving if cannot store still move on
+	}
+}
+// var test = { time : new Date() }; store( "inbox" , test )
+
+function read( dbname , index = db[ dbname ].keyPath , key , func = ( event ) => console.log( event.target.result ) ){
+	if( !db[ dbname ] ) openDb( dbname , () => read( dbname , index , key , func ) )
+	else if( index === null ) db[ dbname ].transaction( dbname , 'readonly' ).objectStore( dbname ).get( key ).onsuccess = func
+	else db[ dbname ].transaction( dbname , 'readonly' ).objectStore( dbname ).index( index ).get( key ).onsuccess = func
+}
+// read( "inbox" , null , 1 ) // autoincrement starts at 1
+
+function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = ( event ) => console.log( event.target.result.value ) ){
+	if( !db[ dbname ] ) return openDb( dbname , () => range( dbname , index , lower , upper , func ) )
+	if( upper < lower ){  // descending order
+		var temp = upper
+		upper = lower
+		lower = temp
+		var prev = "prev"
+	}
+	db[ dbname ].transaction( dbname ).objectStore( dbname ).index( index ).openCursor( IDBKeyRange.bound( lower , upper , true , true ) , prev ).onsuccess = func
+}
+
+	range( "inbox" , "time" , new Date() , new Date().setDate( new Date().getDate() - 14 ) , ( event ) => {
+		var cursor = event.target.result
+		if( cursor ){ 
+			console.log( cursor.value ); 
+
+			var note = cursor.value
+			var inbox = $( 'inbox' )
+			var time = document.createElement( "div" )
+			var title = document.createElement( "div" )
+			var body = document.createElement( "div" )
+			
+			time.textContent = note.time.toLocaleString()
+			title.textContent = note.title
+			body.textContent = note.body
+
+			var link = document.createElement( "a" )
+			link.href = note.data.url
+			link.appendChild( time )
+			link.appendChild( title )
+			link.appendChild( body )
+
+			inbox.appendChild( link )
+
+			cursor.continue() 
+		} else console.log( "end of cursor" )
+	})
+	</script>
+
 	<!-- header -->
 	<div class="float" style="max-width:24em;right:0;">
 		<a href="https://structural.city" style="text-decoration:none;">
@@ -217,7 +311,7 @@
 
 	<form class="div" style="width:100%;flex-direction:row;" onsubmit="false">
 		<label style="width:100%;">
-			<input autofocus id="interaction" name="interaction" type="text" placeholder="interact" style="height:2.5em;width:100%;text-align:center;border:0;" onkeyup="interact()">
+			<input autofocus id="interaction" name="interaction" type="text" placeholder="interact        " style="height:2.5em;width:100%;text-align:center;border:0;" onkeyup="interact()">
 		</label>
 	</form>
 	<script>
@@ -272,7 +366,7 @@
 	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
 		<input required id="user" name="user" autocomplete="" style="flex-grow:1;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager"></input>
 		<input required id="subscription" name="subscription" value="" autocomplete="" class="hide">
-		<input id="subscribe-submit" type="submit" value="subscribe" style="padding:1em;border:0;background:#003c2e;color:white;">
+		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
 	</form> 
 	<script>
 if( 'serviceWorker' in navigator ){  // serviceWorker check
@@ -351,11 +445,9 @@ if( 'serviceWorker' in navigator ){  // serviceWorker check
 // End of serviceworker register
 	</script>
 
-	<!-- notice -->
-	<div></div>
+	<!-- inbox -->
+	<div id="inbox"></div>
 
-
-	<!-- banner -->
 	<!--
 
 	<style>
