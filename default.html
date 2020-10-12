@@ -384,7 +384,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
 	</form> 
 	<script>
-	read( pathname , null , "subscription" ) ? $( "subscribe" ).style.display = "none" : ""
+	read( pathname , null , "subscription" , ( event ) => if( event.target.result ) $( "subscribe" ).style.display = "none" )
 	</script>
 	<script>
 if( 'serviceWorker' in navigator ){  // serviceWorker check
