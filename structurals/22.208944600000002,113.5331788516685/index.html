@@ -37,9 +37,10 @@
 
 	<script>
 // https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+var pathname = /\/$/.test( location.pathname ) ? location.pathname + "index.html" : location.pathname
 var dbschemas = {} 
 dbschemas[ "inbox" ] = { version : 1 , keyPath : "n" , autoIncrement : true , indices : [ 'time' ] }  // sort later based on url
-dbschemas[ location.pathname ] = { version : 1 }  // storing page specific information, e.g. subscription
+dbschemas[ pathname ] = { version : 1 }  // storing page specific information, e.g. subscription
 
 var db = {}
 function openDb( dbname , func ) {
@@ -323,9 +324,9 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		</div>
 	</div>
 
-	<form class="div" style="width:100%;flex-direction:row;" onsubmit="false">
+	<form class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="false">
 		<label style="width:100%;">
-			<input autofocus id="interaction" name="interaction" type="text" placeholder="interact        " style="height:2.5em;width:100%;text-align:center;border:0;" onkeyup="interact()">
+			<input autofocus id="interaction" name="interaction" type="text" placeholder="interact             " style="height:2.5em;width:100%;padding:0;text-align:center;border:0;" onkeyup="interact()">
 		</label>
 	</form>
 	<script>
@@ -382,6 +383,9 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		<input required id="subscription" name="subscription" value="" autocomplete="" class="hide">
 		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
 	</form> 
+	<script>
+	read( pathname , null , "subscription" ) ? $( "subscribe" ).style.display = "none" : ""
+	</script>
 	<script>
 if( 'serviceWorker' in navigator ){  // serviceWorker check
     navigator.serviceWorker.register('/service_worker.js').then( function() {
