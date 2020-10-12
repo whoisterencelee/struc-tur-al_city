@@ -127,6 +127,9 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			title.textContent = note.title
 			body.textContent = note.body
 
+			time.className = "inbox-time"
+			title.className = "inbox-title"
+
 			var link = document.createElement( "a" )
 			link.href = note.data.url
 			link.appendChild( time )
@@ -459,6 +462,8 @@ if( 'serviceWorker' in navigator ){  // serviceWorker check
 	<!-- inbox -->
 	<style>
 	#inbox > * {margin:0.5em;padding:0.5em;background:white;display:flex;flex-wrap:wrap;text-decoration:none;color:black;font-size:0.8em;justify-content:space-between;}
+	#inbox > .inbox-time {color:grey;}
+	#inbox > .inbox-title {color:darkgreen;}
 	</style>
 	<div id="inbox"></div>
 

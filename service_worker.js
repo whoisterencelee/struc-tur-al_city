@@ -98,8 +98,11 @@ self.addEventListener( 'push' , ( event ) => {
 		tag : "pwa" ,
 		requireInteraction : true ,
 	}
+
 	note.data = {}
 	if( data.url ) note.data.url = data.url
+	if( data.pathname ) note.data.pathname = data.pathname
+
 	data.time ? note.time = new Date( data.time ) : note.time = new Date()
 
 	// save message to inbox
