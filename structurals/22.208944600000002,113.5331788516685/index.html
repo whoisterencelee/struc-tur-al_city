@@ -1,4 +1,4 @@
-<doctype html>
+<!doctype html>
 <html class="no-js" lang="">
 
 <head>
@@ -378,7 +378,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 	<!-- subscription -->
 	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
-		<input required type="password" id="user" name="user" autocomplete="" style="flex-grow:1;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager"></input>
+		<input required type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager"></input>
 		<input required id="subscription" name="subscription" value="" autocomplete="" class="hide">
 		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
 	</form> 
@@ -461,11 +461,12 @@ if( 'serviceWorker' in navigator ){  // serviceWorker check
 
 	<!-- inbox -->
 	<style>
-	#inbox > * {margin:0.5em;padding:0.5em;background:white;display:flex;flex-wrap:wrap;text-decoration:none;color:black;font-size:0.8em;justify-content:space-between;}
-	#inbox > .inbox-time {color:grey;}
-	#inbox > .inbox-title {color:darkgreen;}
+	#inbox > * {width:100%;background:white;display:flex;flex-wrap:wrap;text-decoration:none;color:black;font-size:0.8em;justify-content:space-between;}
+	#inbox > * > * {margin:0.5em;}
+	#inbox .inbox-time {color:grey;}
+	#inbox .inbox-title {color:#003c2e;}
 	</style>
-	<div id="inbox"></div>
+	<div id="inbox" style="margin:0.5em;"></div>
 
 	<!--
 
