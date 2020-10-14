@@ -158,8 +158,8 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		#photo:focus {height:100vh;}
 		#photo:focus-within {min-height:100vh;}
 	</style>
-	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;font-size:small;justify-content:end;" >
-		<p id="address" tabindex=1 style="margin:0;padding:0.5em;padding-top:1em;color:white;mix-blend-mode:difference;"></p>
+	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;font-size:small;justify-content:flex-end;" >
+		<p id="address" tabindex=1 style="margin:0;padding:0.5em;padding-top:1em;color:white;outline:none;mix-blend-mode:difference;"></p>
 	</div>
 
 
@@ -384,13 +384,14 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
 	</form> 
 	<div class="hide" id="subscribed" style="color:#003c2e;padding:1em;text-align:center;">
-		Congratulation! Welcome to our building!
+		Welcome to our building!
 	</div>
 	<script>
 	read( pathname , null , "subscription" , function( event ){ if( event.target.result ) $( "subscribe" ).style.display = "none" } )
 	var u = new URLSearchParams( location.search )
 	if( u.get( "subscribed" ) != null ){
 		$( "subscribed" ).style.display = "flex"
+		$( "subscribe" ).style.display = "none"
 		store( pathname , [ "subscription" , true ] ) 
 	}
 	</script>
