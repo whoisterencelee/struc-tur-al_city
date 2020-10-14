@@ -389,7 +389,10 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	<script>
 	read( pathname , null , "subscription" , function( event ){ if( event.target.result ) $( "subscribe" ).style.display = "none" } )
 	var u = new URLSearchParams( location.search )
-	if( u.get( "subscribed" ) != null ) $( "subscribed" ).style.display = "flex"
+	if( u.get( "subscribed" ) != null ){
+		$( "subscribed" ).style.display = "flex"
+		store( pathname , [ "subscription" , true ] ) 
+	}
 	</script>
 	<script>
 if( 'serviceWorker' in navigator ){  // serviceWorker check
