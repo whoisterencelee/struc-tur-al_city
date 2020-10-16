@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="icon.png">
   <!-- Place favicon.ico in the root directory -->
 
-  <meta name="theme-color" content="#d8ccb3">
+  <meta name="theme-color" content="#003c2e">
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
 
@@ -130,6 +130,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 			time.className = "inbox-time"
 			title.className = "inbox-title"
+			body.className = "inbox-body"
 
 			var link = document.createElement( "a" )
 			link.href = note.data.url
@@ -377,6 +378,11 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	}
 	</script>
 
+
+	<!-- servies -->
+	<iframe></iframe>
+
+
 	<!-- subscription -->
 	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
 		<input required type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager"></input>
@@ -478,22 +484,23 @@ if( 'serviceWorker' in navigator ){  // serviceWorker check
 	#inbox > * > * {margin:0.5em;}
 	#inbox .inbox-time {color:grey;}
 	#inbox .inbox-title {color:#003c2e;}
+	#inbox .inbox-body {flex-grow:1;align-content:flex-end;}
 	</style>
 	<div id="inbox" style="margin:0.5em;">
 		<a href="https://structural.city/s/22.203155799999998,113.54169088665458/index.html">
 			<div class="inbox-time">10/9/2020, 12:10:49 PM</div>
 			<div class="inbox-title">welcome </div>
-			<div>Messages relevent to this property will be posted here</div>
+			<div class="inbox-body">Messages relevent to this property will be posted here</div>
 		</a>
 		<a href="https://structural.city/s/22.203155799999998,113.54169088665458/index.html">
 			<div class="inbox-time">10/9/2020, 12:10:49 PM</div>
 			<div class="inbox-title">welcome </div>
-			<div>Messages relevent to this neighborhood will be posted here</div>
+			<div class="inbox-body">Messages relevent to this neighborhood will be posted here</div>
 		</a>
 		<a href="https://structural.city/s/22.203155799999998,113.54169088665458/index.html">
 			<div class="inbox-time">10/9/2020, 12:10:49 PM</div>
 			<div class="inbox-title">welcome </div>
-			<div>Messages relevent to this city will be posted here</div>
+			<div class="inbox-body">Messages relevent to this city will be posted here</div>
 		</a>
 	</div>
 
