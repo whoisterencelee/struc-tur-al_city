@@ -184,6 +184,6 @@
     lunr.jp = lunr.ja;
     lunr.Pipeline.registerFunction(lunr.jp.stemmer, 'stemmer-jp');
     lunr.Pipeline.registerFunction(lunr.jp.trimmer, 'trimmer-jp');
-    lunr.Pipeline.registerFunction(lunr.jp.stopWordFilter, 'stopWordFilter-jp');
+    //lunr.Pipeline.registerFunction(lunr.jp.stopWordFilter, 'stopWordFilter-jp');
   };
 }))
