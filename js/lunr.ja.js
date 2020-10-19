@@ -67,7 +67,7 @@
       this.pipeline.reset();
       this.pipeline.add(
         lunr.ja.trimmer,
-        lunr.ja.stopWordFilter,
+//        lunr.ja.stopWordFilter,
         lunr.ja.stemmer
       );
 
