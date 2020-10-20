@@ -67,7 +67,7 @@
       this.pipeline.reset();
       this.pipeline.add(
         lunr.ja.trimmer,
-//        lunr.ja.stopWordFilter,
+        lunr.ja.stopWordFilter,
         lunr.ja.stemmer
       );
 
@@ -171,10 +171,10 @@
     lunr.Pipeline.registerFunction(lunr.ja.trimmer, 'trimmer-ja');
 
     /* lunr stop word filter. see http://www.ranks.nl/stopwords/japanese */
-    /*lunr.ja.stopWordFilter = lunr.generateStopWordFilter(
+    lunr.ja.stopWordFilter = elasticlunr.generateStopWordFilter(
       'これ それ あれ この その あの ここ そこ あそこ こちら どこ だれ なに なん 何 私 貴方 貴方方 我々 私達 あの人 あのかた 彼女 彼 です あります おります います は が の に を で え から まで より も どの と し それで しかし'.split(' '));
     lunr.Pipeline.registerFunction(lunr.ja.stopWordFilter, 'stopWordFilter-ja');
-    */
+    
 
     // alias ja => jp for backward-compatibility.
     // jp is the country code, while ja is the language code
@@ -184,6 +184,6 @@
     lunr.jp = lunr.ja;
     lunr.Pipeline.registerFunction(lunr.jp.stemmer, 'stemmer-jp');
     lunr.Pipeline.registerFunction(lunr.jp.trimmer, 'trimmer-jp');
-    //lunr.Pipeline.registerFunction(lunr.jp.stopWordFilter, 'stopWordFilter-jp');
+    lunr.Pipeline.registerFunction(lunr.jp.stopWordFilter, 'stopWordFilter-jp');
   };
 }))
