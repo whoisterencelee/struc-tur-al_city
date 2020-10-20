@@ -171,10 +171,9 @@
     lunr.Pipeline.registerFunction(lunr.ja.trimmer, 'trimmer-ja');
 
     /* lunr stop word filter. see http://www.ranks.nl/stopwords/japanese */
-    lunr.ja.stopWordFilter = elasticlunr.generateStopWordFilter(
+    lunr.ja.stopWordFilter = lunr.generateStopWordFilter(
       'これ それ あれ この その あの ここ そこ あそこ こちら どこ だれ なに なん 何 私 貴方 貴方方 我々 私達 あの人 あのかた 彼女 彼 です あります おります います は が の に を で え から まで より も どの と し それで しかし'.split(' '));
     lunr.Pipeline.registerFunction(lunr.ja.stopWordFilter, 'stopWordFilter-ja');
-    
 
     // alias ja => jp for backward-compatibility.
     // jp is the country code, while ja is the language code
