@@ -328,7 +328,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	<script>
 	function openservice(){
 		var serviceDOM = $( 'service' )
-		serviceDOM.onload = function(){ serviceDOM.style.display="block" }
+		serviceDOM.onload = function(){ serviceDOM.style.display="block"; $( 'servicestart' ).focus() }
 		serviceDOM.src = proxy + "actions/" + event.target.getAttribute( "url" )
 	}
 	</script>
