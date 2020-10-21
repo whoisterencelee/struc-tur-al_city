@@ -17,7 +17,7 @@
 
 </head>
 
-<body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;">
+<body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;" onload="$('servicestart').focus()">
   <!--[if IE]>
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
   <![endif]-->
@@ -42,7 +42,7 @@
 		#locations > div > :nth-child(3) {width:8em;}
 		#locations > div > :last-child {flex-grow:1;align-items:start;}
 	</style>
-	<input id="servicestart" autofocus onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;height:2.5em;"></input>
+	<input id="servicestart" onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;height:2.5em;"></input>
 	<div id="locations">
 	</div>
 	<script>
