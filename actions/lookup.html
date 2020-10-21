@@ -35,13 +35,14 @@
 
 
 	<style>
+		#locations {justify-content:start;flex-wrap:nowrap;overflow:scroll;}
 		#locations > div {flex-direction:row;width:100%;justify-content:start;border-bottom:1px solid lightgrey;}
 		#locations > div > :nth-child(1) {width:2em;}
 		#locations > div > :nth-child(2) {width:4em;}
 		#locations > div > :nth-child(3) {width:8em;}
 		#locations > div > :last-child {flex-grow:1;align-items:start;}
 	</style>
-	<input onkeyup="buildlocations( search( event.target.value ) )"></input>
+	<input autofocus onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;"></input>
 	<div id="locations">
 	</div>
 	<script>

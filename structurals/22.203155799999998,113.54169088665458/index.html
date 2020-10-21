@@ -184,6 +184,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 					" (" + ( dist == "m" ? Math.round( action.dist * 100000 ) + "m)" : Math.round( action.dist * 100 ) + "km)" ) 
 					: "" )
 				+ ( label ? " " + label : "" )
+			actionDOM.setAttribute( "url" , action.url )
 			$( DOMid ).appendChild( actionDOM )
 		} )
 	}  // actionsDOM()
@@ -316,7 +317,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		}
 	</style>
 
-	<div class="actions">
+	<div class="actions" onclick="openservice()">
 		<div id="structure"><!-- structure -->
 		</div>
 		<div id="neighbor"><!-- neighbor -->
@@ -324,6 +325,13 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		<div id="city" style="border:0;"><!-- city -->
 		</div>
 	</div>
+	<script>
+	function openservice(){
+		var serviceDOM = $( 'service' )
+		serviceDOM.onload = function(){ serviceDOM.style.display="block" }
+		serviceDOM.src = proxy + "actions/" + event.target.getAttribute( "url" )
+	}
+	</script>
 
 	<form class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="false">
 		<label style="width:100%;">
@@ -380,7 +388,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 
 	<!-- services -->
-	<iframe class="hide" style="border:0"></iframe>
+	<iframe id="service" class="hide" style="border:0;min-height:50vh;"></iframe>
 
 	<!-- inbox -->
 	<style>
