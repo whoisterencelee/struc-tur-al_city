@@ -396,6 +396,8 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		$( "interaction").focus()
 	}
 	function openservice(){
+		var url = event.target.getAttribute( "url" )
+		if( !url ) return
 		$( "interactform" ).style.display = "none"
 		var serviceDOM = $( 'service' )
 		serviceDOM.onload = function(){ 
@@ -407,7 +409,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			} catch( e ){}
 		}
 		$( "pullup-title" ).textContent = event.target.textContent
-		serviceDOM.src = proxy + "actions/" + event.target.getAttribute( "url" )
+		serviceDOM.src = proxy + "actions/" + url
 	}
 	</script>
 
