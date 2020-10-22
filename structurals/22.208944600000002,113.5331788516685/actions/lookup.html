@@ -37,12 +37,12 @@
 	<style>
 		#locations {justify-content:start;flex-wrap:nowrap;overflow:scroll;}
 		#locations > div {flex-direction:row;width:100%;justify-content:start;border-bottom:1px solid lightgrey;}
+		#locations > div > div {width:8em;}
 		#locations > div > :nth-child(1) {width:2em;}
 		#locations > div > :nth-child(2) {width:4em;}
-		#locations > div > :nth-child(3) {width:8em;}
 		#locations > div > :last-child {flex-grow:1;align-items:start;}
 	</style>
-	<input id="servicestart" onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;min-height:2.5em;"></input>
+	<input id="servicestart" onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;min-height:2.5em;border:0;"></input>
 	<div id="locations">
 	</div>
 	<script>

@@ -314,6 +314,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			font-size:0.75em;
 			border-right:1px solid lightgrey;
 			min-width:max-content;  /* important */
+			cursor:pointer;
 		}
 	</style>
 
@@ -325,21 +326,8 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		<div id="city" style="border:0;"><!-- city -->
 		</div>
 	</div>
-	<script>
-	function openservice(){
-		var serviceDOM = $( 'service' )
-		serviceDOM.onload = function(){ 
-			serviceDOM.style.display="block"
-			try{
-			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
-			iframedoc.getElementById( 'servicestart' ).focus()
-			} catch( e ){}
-		}
-		serviceDOM.src = proxy + "actions/" + event.target.getAttribute( "url" )
-	}
-	</script>
 
-	<form class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="false">
+	<form id="interactform" class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="false">
 		<label style="width:100%;">
 			<input autofocus id="interaction" name="interaction" type="text" placeholder="interact               " style="height:2.5em;width:100%;padding:0;text-align:center;border:0;" onkeyup="interact()">
 		</label>
@@ -394,7 +382,34 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 
 	<!-- services -->
-	<iframe id="service" class="hide" style="border:0;min-height:50vh;"></iframe>
+	<style>
+		#pullup > * {margin:0.5em;}
+	</style>
+	<div id="miniapp" class="hide" style="margin:0 0.5em;">
+		<div id="pullup" onclick="closeservice()" style="width:100%;font-size:0.75em;color:white;background:#003c2e;flex-direction:row;text-align:center;"><span>&#10799;</span><span id="pullup-title" style="flex-grow:1;">service</span><span>&nbsp;&nbsp;</span></div>
+		<iframe id="service" style="min-height:50vh;width:100%;border:0;"></iframe>
+	</div>
+	<script>
+	function closeservice(){
+		$( "miniapp" ).style.display = ""
+		$( "interactform" ).style.display = ""
+		$( "interaction").focus()
+	}
+	function openservice(){
+		$( "interactform" ).style.display = "none"
+		var serviceDOM = $( 'service' )
+		serviceDOM.onload = function(){ 
+			serviceDOM.style.display = "block"
+			$( "miniapp" ).style.display = "flex"
+			try{
+			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
+			iframedoc.getElementById( 'servicestart' ).focus()
+			} catch( e ){}
+		}
+		$( "pullup-title" ).textContent = event.target.textContent
+		serviceDOM.src = proxy + "actions/" + event.target.getAttribute( "url" )
+	}
+	</script>
 
 	<!-- inbox -->
 	<style>
