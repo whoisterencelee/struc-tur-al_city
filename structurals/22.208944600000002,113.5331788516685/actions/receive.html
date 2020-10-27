@@ -35,37 +35,48 @@
 
 
 	<style>
-		#locations {justify-content:start;flex-wrap:nowrap;overflow:scroll;background:white;}
+		#locations {justify-content:start;flex-wrap:nowrap;overflow:scroll;}
 		#locations > div {flex-direction:row;width:100%;justify-content:start;border-bottom:1px solid lightgrey;}
-		#locations > div > div {width:8em;}
-		#locations > div > :nth-child(1) {width:2em;}
-		#locations > div > :nth-child(2) {width:4em;}
-		#locations > div > :last-child {flex-grow:1;align-items:start;}
+		#locations > div > div {flex-grow:1;}
 	</style>
-	<input id="servicestart" onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;min-height:2.5em;border:0;border-bottom:1px solid black;"></input>
-	<div id="locations">
+	<input id="servicestart" onkeyup="buildlist( search( event.target.value ) )" placeholder="find" style="text-align:center;min-height:2.5em;border:0;border-bottom:1px solid black;"></input>
+	<div id="locations" style="background:white;">
 	</div>
 	<script>
 	var lookup
 	var latlon = document.location.pathname.split('/').slice(-3)[0]
 	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/actions/" : ""
 
-	function buildlocations( lu ){
+	var parser = [ , s => new Date( s ).toLocaleString() ]
+	var title = [ "courier code" , "drop off time" ]
+
+	function buildlist( lu ){
 		$( 'locations' ).innerHTML = ""
+
+		if( title ){
+			var row = document.createElement( "div" )
+			title.forEach( ( h , i ) => {
+				var heading = document.createElement( "div" )
+				heading.textContent = title[ i ]
+				row.appendChild( heading )
+			} )
+			$( 'locations' ).appendChild( row )
+		}
 		lu.forEach( l => {
 			var row = document.createElement( "div" )
-			l.forEach( t => {
+			l.forEach( ( t , i ) => {
 				var cell = document.createElement( "div" )
-				cell.textContent = t
+				if( parser[ i ] ) cell.textContent = parser[ i ]( t )
+				else cell.textContent = t
 				row.appendChild( cell )
 			} )
 			$( 'locations' ).appendChild( row )
 		} )
 	}
 
-	fetch( proxy + "../data/lookup.json" ).then( r => r.json() ).then( data =>{
+	fetch( proxy + "../data/receive.json" ).then( r => r.json() ).then( data =>{
 		lookup = data 
-		buildlocations( lookup )
+		buildlist( lookup )
 	})
 
 	function search( text ){
