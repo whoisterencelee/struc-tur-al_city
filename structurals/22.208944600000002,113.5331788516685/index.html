@@ -15,8 +15,6 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
 
-  <script src="../../js/elasticlunr.min.js"></script>
-
 </head>
 
 <body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;">
@@ -174,7 +172,24 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
-	var index = elasticlunr( function(){ this.addField( 'description' ); this.setRef( 'id' ) } )
+	var lookup = []
+
+	function search( text , options ){
+		const REGEX_CHINESE = /[\u4e00-\u9fff]|[\u3400-\u4dbf]|[\u{20000}-\u{2a6df}]|[\u{2a700}-\u{2b73f}]|[\u{2b740}-\u{2b81f}]|[\u{2b820}-\u{2ceaf}]|[\uf900-\ufaff]|[\u3300-\u33ff]|[\ufe30-\ufe4f]|[\uf900-\ufaff]|[\u{2f800}-\u{2fa1f}]/ug;
+		// "i" for ignore case for English
+		// break segment on chinese text, like breaking up words
+		var t = text
+		t = t.replace( /\s+/g , "|" )				// space segmentation
+		t = t.replace( REGEX_CHINESE , c => "|" + c + "|" )	// for chinese segmentation
+		t = t.replace( /[|][|]+/g , "|" )			// remove double pipes empty OR
+		t = t.replace( /^[|]/ , "" )				// remove first empty OR
+		t = t.replace( /[|]$/ , "" )				// remove last empty OR
+		var re = new RegExp( t , "i" )  			// "i" ignore case
+		return lookup.filter( doc => {
+			if( options.field ) doc = doc[ options.field ]
+			return re.test( JSON.stringify( doc ) )
+			} )
+	}
 
 	function actionsDOM( actions , DOMid , dist , label = "" ){
 		actions.forEach( action =>{
@@ -206,7 +221,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 					action.latlon = latlon  // for later compare
 					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
 					action.dist = 0
-					index.addDoc( action )
+					lookup.push( action )
 					structureActions.push( action )  // default structure actions
 				} )
 				actionsDOM( data.actions , 'structure' )
@@ -232,7 +247,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 							action.latlon = natnon
 							action.id = natnon + "/" + action.description
 							action.dist = dist
-							index.addDoc( action )
+							lookup.push( action )
 							// TODO randomize insert
 							cityActions.push( action )
 						} )
@@ -262,7 +277,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 										action.location[ 1 ][ 0 ] >= lat && 
 										action.location[ 1 ][ 1 ] >= lon ) ) return
 
-									index.addDoc( action )  // searchable regardless
+									lookup.push( action )
 
 									// TODO randomly insert action
 									neighborActions.push( action )
@@ -344,11 +359,11 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			actionsDOM( cityActions , 'city' , "km" )
 			return
 		}
-		var result = index.search( term , {} )
+		var result = search( term , { field : 'description' } )
 		var result_structure = [] , result_neighbors = [] , result_city = []
 
 		result.forEach( r => {
-			var action = r.doc
+			var action = r
 			if( action.latlon == latlon ) result_structure.push( action )
 			else if ( ( ! Array.isArray( action.location ) ) || (  // if not bounded
 				action.location[ 0 ][ 0 ] <= lat &&  // check if bounded
