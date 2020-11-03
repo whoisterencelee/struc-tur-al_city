@@ -342,7 +342,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		</div>
 	</div>
 
-	<form id="interactform" class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="false">
+	<form id="interactform" class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="return false">
 		<label style="width:100%;">
 			<input autofocus id="interaction" name="interaction" type="text" placeholder="interact               " style="height:2.5em;width:100%;padding:0;text-align:center;border:0;" onkeyup="interact()">
 		</label>
@@ -376,20 +376,20 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			}
 		} )
 
-		if( result.length == 0 ){
-			var action = {}
-			action.description = term
-			action.url = "add.html"
-			action.latlon = latlon  // for later compare
-			action.id = latlon + "/" + action.description
-			action.dist = 0
-			result_structure.push( action )
-		}
+		// always allow adding new service
+		var action = {}
+		action.description = term + " + "
+		action.url = "add.html"
+		action.latlon = latlon  // for later compare
+		action.id = latlon + "/" + action.description
+		action.dist = 0
+		result_structure.push( action )
 
+		// display services
 		$('structure').innerHTML = ""
 		$('neighbor').innerHTML = ""
 		$('city').innerHTML = ""
-		actionsDOM( result_structure , 'structure' , null , result.length == 0 ? " +" : null )
+		actionsDOM( result_structure , 'structure' , null ) 
 		actionsDOM( result_neighbors , 'neighbor' , "m" )
 		actionsDOM( result_city , 'city' , "km" )
 	}
