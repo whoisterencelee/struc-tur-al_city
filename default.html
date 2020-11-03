@@ -378,12 +378,12 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 		// always allow adding new service
 		var action = {}
-		action.description = term + " + "
+		action.description = term + " (new) "
 		action.url = "add.html"
 		action.latlon = latlon  // for later compare
 		action.id = latlon + "/" + action.description
 		action.dist = 0
-		result_structure.push( action )
+		result_structure.unshift( action )
 
 		// display services
 		$('structure').innerHTML = ""

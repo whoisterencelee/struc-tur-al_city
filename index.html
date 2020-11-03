@@ -51,8 +51,8 @@
 		.list-item { justify-content:left;padding:1em;border-bottom:solid 1px grey;width:100%;font-size:0.8em; }
 		.list-item div { flex-direction:row;width:100%;justify-content:space-between;flex-wrap:nowrap;}
 		.list-item div span { font-size:xx-small;flex-shrink:0; }
-		.list-item .enter { background:#ae8237;color:white;padding:0.5em 1em;text-decoration:none;box-shadow:1px 2px 3px gray;}
-		.list-item .start { background:#003c2e;color:white;padding:0.5em 1em;text-decoration:none;box-shadow:1px 2px 3px gray;}
+		.list-item .enter { color:#ae8237;padding:0.5em 1em;text-decoration:none;border:1px solid #ae8237;border-radius:2em;}
+		.list-item .startmanaging { color:#003c2e;padding:0.5em 1em;text-decoration:none;border:1px solid #003c2e;border-radius:2em;}
 
 		</style>
 
@@ -61,8 +61,70 @@
 			<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
 			</div>
 		</div>
+
+		<!-- start managing -->
+		<style>.hpot {display:none;}
+		.start form {display:flex;flex-direction:column;align-items:center;width:100%;height:100%;}
+		.start form input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;border-bottom:3px dotted lightgrey;padding:0.5em;text-align:center;}
+		.start form label {display:flex;flex-direction:column;align-items:center;text-align:center;width:calc( 101% - 2em );margin-bottom:1em;}
+		.start form span {color:grey;width:100%;text-decoration:none;outline:0;}
+		.start form label a {color:#0070c4;text-decoration:none;}
+		.start input[type="submit"]:disabled {background:grey;}
+		.start input[type="submit"]:enabled {background:#ae8237;}
+		</style>
+		<div id="start" class="start" style="display:none;background:rgba(255,255,255,0.8);width:100%;font-size:0.8em;max-height:40vh;padding-top:1em;overflow:auto;">
+
+			<form method="POST" action="https://functional.limited/forms">
+			
+			<div class="hpot"><label>
+				<input name="_next" value="https://structural.city?success"></input>
+				<input name="_gotcha"></input>
+				<input name="_to" value="https://structrual.city/s/approve.html"></input>
+				<input name="latlon"></input>
+			</label></div>
+
+			<label>
+			Why do you want to manage this building?
+			<input autofocus placeholder="I want to live better" name="why" required></input>
+			</label>
+
+			<label>
+			Can you actively work with this neighborhood?
+			<input style="text-align:center;" placeholder="Yes, I will try my best" name="active" required></input>
+			<span tabindex="-1" style="font-size:0.75em;">active participation is required</span><br />
+			</label>
+
+			<label>
+			Are you being referred by someone?
+			<input placeholder="Bryan from structural.city" name="referrer"></input>
+			<span tabindex="-1" style="font-size:0.75em;">optional</span><br />
+			</label>
+
+			<!--
+			<label>
+			A unique code to link your devices?
+			<input type="password" placeholder="e.g. L781025T" name="user" required></input>
+			</label>
+
+			<label>
+			Confirm unique code?
+			<input type="password" placeholder="e.g. L781025T" name="user-check" required></input>
+			</label>
+			-->
+
+			<label>
+			<input style="color:white;padding:0.5em;border:1px solid lightgrey;box-shadow:3px 3px 5px 0px lightgrey;cursor:pointer;" type="submit" value="submit" id="submit" ></input>
+			<span tabindex="-1" style="font-size:0.75em;margin-top:1em;">
+			if approved a notification will be sent to this device
+			</span>
+			</label>
+
+			</form>
+
+		</div>
 	</div>
 
+	<!-- map -->
 	<script>
 	var places = []
 
@@ -83,8 +145,8 @@
 		})
 
 		// link
-		if( structurals[ latlon ] ) addressDOM += "<a class='enter' href='./s/" + latlon + page + "'>enter</a>" 
-		else addressDOM += "<a class='start' href='./s/new.html'>start managing</a>"
+		if( structurals[ latlon ] ) addressDOM += "<a class='enter unselectable' href='./s/" + latlon + page + "'>actively managed - enter</a>" 
+		else addressDOM += "<a class='startmanaging unselectable' onclick='" + '$("start").style.display="flex"' + "'>start managing</a>"
 
 		return addressDOM + "</div>"
 	}
@@ -161,13 +223,16 @@
 
 	</script>
 
-<style>
+	<style>
 	.leaflet-control-attribution {display:block;}
-</style>
-<div id="map" style="flex-grow:1;">
-</div>
-<div style="position:fixed;top:calc(50vh - 1em);left:calc(50vw - 0.3em);font-size:2em;z-index:9999;color:#003c2e;cursor:pointer;" onclick="clickLocate()">&#8962;</div>
-<script>
+	</style>
+
+	<div id="map" style="flex-grow:1;">
+	</div>
+
+	<div style="position:fixed;top:calc(50vh - 1em);left:calc(50vw - 0.3em);font-size:2em;z-index:9999;color:#003c2e;cursor:pointer;" onclick="clickLocate()">&#8962;</div>
+
+	<script>
 	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
 
 	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -199,7 +264,7 @@
 	}
 	loadStructurals()
 
-</script>
+	</script>
 
 </body>
 
