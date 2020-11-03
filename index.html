@@ -64,7 +64,7 @@
 
 		<!-- start managing -->
 		<style>.hpot {display:none;}
-		.start form {display:flex;flex-direction:column;align-items:center;width:100%;height:100%;}
+		.start form {display:flex;flex-direction:column;align-items:center;width:100%;height:100%;overflow:auto;}
 		.start form input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;border-bottom:3px dotted lightgrey;padding:0.5em;text-align:center;}
 		.start form label {display:flex;flex-direction:column;align-items:center;text-align:center;width:calc( 101% - 2em );margin-bottom:1em;}
 		.start form span {color:grey;width:100%;text-decoration:none;outline:0;}
@@ -72,7 +72,7 @@
 		.start input[type="submit"]:disabled {background:grey;}
 		.start input[type="submit"]:enabled {background:#ae8237;}
 		</style>
-		<div id="start" class="start" style="display:none;background:rgba(255,255,255,0.8);width:100%;font-size:0.8em;max-height:40vh;padding-top:1em;overflow:auto;">
+		<div id="start" class="start" style="display:none;background:white;width:100%;font-size:0.8em;max-height:40vh;padding-top:1em;">
 
 			<form method="POST" action="https://functional.limited/forms">
 			
@@ -114,7 +114,7 @@
 
 			<label>
 			<input style="color:white;padding:0.5em;border:1px solid lightgrey;box-shadow:3px 3px 5px 0px lightgrey;cursor:pointer;" type="submit" value="submit" id="submit" ></input>
-			<span tabindex="-1" style="font-size:0.75em;margin-top:1em;">
+			<span tabindex="-1" style="font-size:0.75em;margin-bottom:1em;">
 			if approved a notification will be sent to this device
 			</span>
 			</label>
