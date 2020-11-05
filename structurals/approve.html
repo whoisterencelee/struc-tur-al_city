@@ -41,8 +41,7 @@
 	<div class="float" style="max-width:24em;width:85vw;right:0;">
 		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
 			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
-				<span style="margin:.5em 1em;cursor:pointer;">structural.city</span> 
-				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Location 位置" onchange="typeLocate()">
+				<span style="margin:.5em 1em;cursor:pointer;">structural.city/s/approve</span> 
 			</label>
 		</form>
 
@@ -59,7 +58,7 @@
 
 		<div id="list" style="background:rgba(255,255,255,0.8);box-shadow:1px 1px 3px grey;width:100%;max-height:42vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
 			<div id="callback" class="list-item">
-			<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
+			<span>loading msgId</span>
 			</div>
 		</div>
 		
@@ -70,45 +69,74 @@
 			$( 'callback' ).innerHTML = "<p>🎉 Thank you for participating 感謝您的參與</p>"
 			// TODO should direct to other nearby building
 		}
+		var msgId = p.get( "msgId" )
+		if( msgId != null ){
+			fetch( 'https://functional.limited/msgs/structural.city/s/approve.html/' + msgId ).then( res => {
+			res.json().then( msg =>{
+				$( 'latlon' ).value = msg.latlon
+				
+				fetch( "https://nominatim.openstreetmap.org/reverse?lat=" + msg.latlon.split( "," )[0] + "&lon=" + msg.latlon.split( "," )[1]
+						+ "&format=geojson"
+						+ "&addressdetails=1"
+						)
+					.then( response => response.json() )
+					.then( data => {
+						buildMarkers( data ) 
+						$( "location" ).value = data.features[ 0 ].properties.display_name
+					} ) 
+
+				$( 'why' ).value = msg.why
+				$( 'active' ).value = msg.active
+				$( 'referrer' ).value = msg.referrer
+				$( 'subscription' ).value = msg.subscription
+
+				$('_msgId').value = msgId
+				$('_token').value = p.get("token")
+				console.log( res ) 
+				})
+			})
+		}
 		</script>
 
 
 		<!-- start managing -->
 		<style>.hpot {display:none;}
 		.start form {display:flex;flex-direction:column;align-items:center;width:100%;height:100%;overflow:auto;}
-		.start form input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;border-bottom:3px dotted lightgrey;padding:0.5em;text-align:center;}
+		.start form input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;border-bottom:3px dotted lightgrey;padding:0.5em;text-align:center;color:darkgreen;}
 		.start form label {display:flex;flex-direction:column;align-items:center;text-align:center;width:calc( 101% - 2em );margin-bottom:0.5em;}
 		.start form span {color:grey;width:100%;text-decoration:none;outline:0;}
 		.start form label a {color:#0070c4;text-decoration:none;}
 		.start input[type="submit"]:disabled {background:grey;}
 		.start input[type="submit"]:enabled {background:#ae8237;}
 		</style>
-		<div id="start" class="start" style="display:none;background:white;width:100%;font-size:0.8em;max-height:42vh;padding-top:1em;">
+		<div id="start" class="start" style="background:rgba(255,255,255,0.8);width:100%;font-size:0.8em;max-height:42vh;padding-top:1em;">
 
-			<form method="POST" action="https://functional.limited/forms">
+			<form method="POST" action="https://functional.limited/tokens">
 			
 			<div class="hpot"><label>
-				<input name="_next" value="https://structural.city?success"></input>
 				<input name="_gotcha"></input>
-				<input name="_to" value="https://structural.city/s/approve.html"></input>
+				<input name="_token" id="_token" required></input>
+				<input name="_msgId" id="_msgId" required></input>
 				<input id="latlon" name="latlon" required></input>
 				<input id="subscription" name="subscription" required></input>
+				<input name="_to" value="https://structural.city/s/approve.html/new_location.js"></input>
+				<input name="_next" value="https://structural.city"></input>
 			</label></div>
 
 			<label>
 			Why do you want to manage this building?
-			<input autofocus placeholder="I want to live better" name="why" required></input>
+			<input disabled id="why" name="why" required></input>
 			</label>
 
 			<label>
 			Can you actively work with this neighborhood?
-			<input style="text-align:center;" placeholder="Yes, I will try my best" name="active" required></input>
+			<input disabled id="active" style="text-align:center;" name="active" required></input>
 			<span tabindex="-1" style="font-size:0.75em;">active participation is required</span><br />
 			</label>
 
 			<label>
 			Are you being referred by someone?
-			<input placeholder="Bryan from structural.city" name="referrer"></input>
+			<input disabled id="referrer" name="referrer"></input>
 			<span tabindex="-1" style="font-size:0.75em;">optional</span><br />
 			</label>
 
@@ -124,12 +152,8 @@
 			</label>
 			-->
 
-			<label style="flex-direction:row;justify-content:center;">
-			I accept receiving notification<input id="accept_notification" style="width:auto;margin-left:1em;" type="checkbox" required></input>
-			</label>
-
 			<label>
-			<input style="color:white;padding:0.5em;border:1px solid lightgrey;box-shadow:3px 3px 5px 0px lightgrey;cursor:pointer;" type="submit" value="submit" id="submit" ></input>
+			<input style="color:white;padding:0.5em;border:1px solid lightgrey;box-shadow:3px 3px 5px 0px lightgrey;cursor:pointer;" type="submit" value="approve" id="submit" ></input>
 			<p></p>
 			</label>
 
@@ -238,8 +262,8 @@ $( 'accept_notification' ).checked = false  // default
 		})
 
 		// link
-		if( structurals[ latlon ] ) addressDOM += "<a class='enter unselectable' href='./s/" + latlon + page + "'>actively managed - enter</a>" 
-		else addressDOM += "<a class='startmanaging unselectable' onclick='subscribeLocate()'>start managing</a>"
+		//if( structurals[ latlon ] ) addressDOM += "<a class='enter unselectable' href='./s/" + latlon + page + "'>actively managed - enter</a>" 
+		//else addressDOM += "<a class='startmanaging unselectable' onclick='subscribeLocate()'>start managing</a>"
 
 		return addressDOM + "</div>"
 	}
@@ -362,7 +386,7 @@ $( 'accept_notification' ).checked = false  // default
 				cities[ bounds ] = new Date()  // keep track of last load time
 			} )
 	}
-	loadStructurals()
+	//loadStructurals()
 
 	</script>
 
