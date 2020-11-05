@@ -51,16 +51,27 @@
 		.list-item { justify-content:left;padding:1em;border-bottom:solid 1px grey;width:100%;font-size:0.8em; }
 		.list-item div { flex-direction:row;width:100%;justify-content:space-between;flex-wrap:nowrap;}
 		.list-item div span { font-size:xx-small;flex-shrink:0; }
+		.list-item p { font-size:small;flex-shrink:0;}
 		.list-item .enter { color:#ae8237;padding:0.5em 1em;text-decoration:none;border:1px solid #ae8237;border-radius:2em;}
 		.list-item .startmanaging { color:#003c2e;padding:0.5em 1em;text-decoration:none;border:1px solid #003c2e;border-radius:2em;}
 
 		</style>
 
-		<div id="list" style="background:rgba(255,255,255,0.8);box-shadow:1px 1px 3px grey;width:100%;max-height:40vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
-			<div class="list-item">
+		<div id="list" style="background:rgba(255,255,255,0.8);box-shadow:1px 1px 3px grey;width:100%;max-height:42vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
+			<div id="callback" class="list-item">
 			<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
 			</div>
 		</div>
+		
+		<!-- success -->
+		<script>
+		var p = new URLSearchParams( location.search )
+		if( p.get( "success" ) ){
+			$( 'callback' ).innerHTML = "<p>🎉 Thank you for participating 感謝您的參與</p>"
+			// TODO should direct to other nearby building
+		}
+		</script>
+
 
 		<!-- start managing -->
 		<style>.hpot {display:none;}
@@ -72,15 +83,15 @@
 		.start input[type="submit"]:disabled {background:grey;}
 		.start input[type="submit"]:enabled {background:#ae8237;}
 		</style>
-		<div id="start" class="start" style="display:none;background:white;width:100%;font-size:0.8em;max-height:40vh;padding-top:1em;">
+		<div id="start" class="start" style="display:none;background:white;width:100%;font-size:0.8em;max-height:42vh;padding-top:1em;">
 
 			<form method="POST" action="https://functional.limited/forms">
 			
 			<div class="hpot"><label>
 				<input name="_next" value="https://structural.city?success"></input>
 				<input name="_gotcha"></input>
-				<input name="_to" value="https://structrual.city/s/approve.html"></input>
-				<input name="latlon"></input>
+				<input name="_to" value="https://structural.city/s/approve.html"></input>
+				<input id="latlon" name="latlon" required></input>
 			</label></div>
 
 			<label>
@@ -146,7 +157,7 @@
 
 		// link
 		if( structurals[ latlon ] ) addressDOM += "<a class='enter unselectable' href='./s/" + latlon + page + "'>actively managed - enter</a>" 
-		else addressDOM += "<a class='startmanaging unselectable' onclick='" + '$("start").style.display="flex"' + "'>start managing</a>"
+		else addressDOM += "<a class='startmanaging unselectable' onclick='subscribeLocate()'>start managing</a>"
 
 		return addressDOM + "</div>"
 	}
@@ -218,7 +229,14 @@
 	function selectLocate(){
 		var list_item = event.target
 		while( ! /list-item/.test( list_item.className ) ){ list_item = list_item.parentNode }
-		map.setView( [ list_item.attributes.lat.value , list_item.attributes.lon.value ] )
+		if( list_item.attributes.lat && list-item.attributes.lon ) map.setView( [ list_item.attributes.lat.value , list_item.attributes.lon.value ] )
+	}
+
+	function subscribeLocate(){
+		var list_item = event.target
+		while( ! /list-item/.test( list_item.className ) ){ list_item = list_item.parentNode }
+		$( "latlon" ).value = list_item.attributes.lat.value + "," + list_item.attributes.lon.value
+		$( "start" ).style.display="flex"	
 	}
 
 	</script>
@@ -244,7 +262,7 @@
 
 	// load poi
 	var cities = {} , structurals = {}
-	var proxy = location.protocol == "file:" ? "https://functional.limited" : ""
+	var proxy = location.protocol == "file:" ? "https://functional.limited" : "https://structural.city"
 	var page = location.protocol == "file:" ? "/index.html" : ""
 
 	function loadStructurals(){
