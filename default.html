@@ -378,7 +378,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 
 		// always allow adding new service
 		var action = {}
-		action.description = term + " (new) "
+		action.description = term + " + "
 		action.url = "add.html"
 		action.latlon = latlon  // for later compare
 		action.id = latlon + "/" + action.description
@@ -400,7 +400,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	<style>
 		#pullup > * {margin:0.5em;}
 	</style>
-	<div id="miniapp" class="hide" style="margin:0 0.5em;">
+	<div id="miniapp" class="hide">
 		<div id="pullup" onclick="closeservice()" style="width:100%;font-size:0.75em;color:white;background:#003c2e;flex-direction:row;text-align:center;"><span>&#10799;</span><span id="pullup-title" style="flex-grow:1;">service</span><span>&nbsp;&nbsp;</span></div>
 		<iframe id="service" style="min-height:50vh;width:100%;border:0;"></iframe>
 	</div>
@@ -420,11 +420,14 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			$( "miniapp" ).style.display = "flex"
 			try{
 			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
-			iframedoc.getElementById( 'servicestart' ).focus()
+			var servicestart = iframedoc.getElementById( 'servicestart' )
+			if( servicestart ) servicestart.focus()
 			} catch( e ){}
 		}
 		$( "pullup-title" ).textContent = event.target.textContent
-		serviceDOM.src = proxy + "actions/" + url
+		serviceDOM.src = proxy + "actions/" + url + "?"
+			+ "interaction=" + encodeURIComponent( $( 'interaction' ).value ) + "&"
+			+ "latlon=" + encodeURIComponent( latlon ) + "&"
 	}
 	</script>
 
