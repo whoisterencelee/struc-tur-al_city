@@ -35,17 +35,20 @@
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
 	<style>.hpot {display:none;}
-	.start form {display:flex;flex-direction:column;align-items:center;width:100%;height:100%;overflow:auto;}
-	.start form input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;border-bottom:3px dotted lightgrey;padding:0.5em;text-align:center;}
+	.start form {display:flex;flex-direction:column;align-items:center;width:100%;overflow:auto;}
+	.start input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;padding:0.5em;}
+	.start .solidline {width:100%;max-width:20em;border-bottom:3px solid lightgrey;text-align:center;}
+	.start .dottedline {width:100%;max-width:20em;border-bottom:3px dotted lightgrey;text-align:center;}
 	.start form label {display:flex;flex-direction:column;align-items:center;text-align:center;width:calc( 101% - 2em );margin-bottom:0.5em;flex-wrap:wrap;}
 	.start form span {color:grey;width:100%;text-decoration:none;outline:0;font-size:0.75em;}
 	.start form label a {color:#0070c4;text-decoration:none;}
-	.start form textarea {background:transparent;border:0;margin:0;border:3px dotted lightgrey;font-family:Arial;width:100%;padding:0.5em;max-width:20em;min-height:5em;}
+	.start .solidbox {background:transparent;border:0;margin:0;border:3px solid lightgrey;font-family:Arial;width:100%;padding:0.5em;max-width:20em;min-height:5em;}
+	.start .dottedbox {background:transparent;border:0;margin:0;border:3px dotted lightgrey;font-family:Arial;width:100%;padding:0.5em;max-width:20em;min-height:5em;}
 	.start input[type="submit"]:disabled {background:grey;}
 	.start input[type="submit"]:enabled {background:#ae8237;}
 	</style>
 	<div class="start">
-	<form method="POST" action="https://functional.limited/forms" target="_top">
+	<form method="POST" action="https://functional.limited/tokens" target="_top">
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
@@ -55,33 +58,73 @@
 
 		<label>
 		Subject
-		<input id="servicestart" name="subject" required></input>
+		<div id="subject" name="subject" class="solidline"></div>
 		</label>
 
 		<label>
-		Please tell us more
-		<textarea autofocus id="detail" name="detail" placeholder="who, what, when, where, why, how" required></textarea>
+		Detail
+		<div id="detail" name="detail" class="solidbox"></div>
 		</label>
 
 		<label>
-		Tenant code
-		<input type="password" id="user" name="user"></input>
-		<span>optional - if you liked to be reached, otherwise anonymous</span>
+		<input style="border:0;color:white;" type="submit" value="next"></input>
+		</label>
+	</form>
+	<hr style="width:100%;"/>
+	<form method="POST" action="https://functional.limited/forms" target="_top">
+
+		<div class="hpot"><label>
+			<input name="_gotcha"></input>
+			<input id="_clarifynext" name="_next"></input>
+			<input id="_clarifyto" name="_to"></input>
+		</label></div>
+
+		<label>
+		Tenant
+		<input id="user" name="user" class="dottedline"></input>
 		</label>
 
 		<label>
-		<input style="border:0;color:white;" type="submit" value="send"></input>
+		Question
+		<textarea id="clarifydetail" name="detail" class="dottedbox"></textarea>
 		</label>
+
+		<label>
+		<input style="border:0;color:white;" type="submit" value="clarify"></input>
+		</label>
+
 	</form>
 	</div>
 	<script>
 	var p = new URLSearchParams( location.search )
+
 	var interaction = p.get( "interaction" )
 	if( interaction != null ){
 		$( 'servicestart' ).value = interaction
 		$( '_to' ).value = "https://structural.city/s/" + p.get( "latlon" ) + "/actions/add_approve.html"
 		$( '_next' ).value = "https://structural.city/s/" + p.get( "latlon" )
 	}
+
+	var msgId = p.get( "msgId" )
+	if( msgId != null ){
+		var pathname = location.protocol == "file:" ? location.pathname.replace( /.*\/struc-tur-al_city/ , "" ) : location.pathname
+
+		fetch( 'https://functional.limited/msgs/structural.city' + pathname + '/' + msgId ).then( res => {
+		res.json().then( msg =>{
+
+			$( 'subject' ).textContent = msg.subject
+			$( 'detail' ).textContent = msg.detail
+
+			$( 'user' ).textContent = msg.user
+			$( 'clarifydetail' ).textContent = msg.detail
+
+			$('_msgId').value = msgId
+			$('_token').value = p.get("token")
+			console.log( res ) 
+			})
+		})
+	}
+
 	$( "detail" ).focus()
 	</script>
 
