@@ -18,7 +18,7 @@
 
 </head>
 
-<body style="background:white;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;"> 
+<body style="background:white;font-family:'Noto Serif TC',sans-serif;margin:0;display:flex;flex-direction:column;"> 
   <!--[if IE]>
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
   <![endif]-->
@@ -33,6 +33,138 @@
 	.float { position:fixed;z-index:99999;}
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
+
+	<!-- structural -->
+	<script>
+	var structurals = {}
+
+	var latlon = document.location.pathname.split('/').slice(-3)[0]
+	$( 'address' ).textContent = latlon
+	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/" : ""
+
+	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
+
+	var lookup = []
+
+	function search( text , options ){
+		const REGEX_CHINESE = /[\u4e00-\u9fff]|[\u3400-\u4dbf]|[\u{20000}-\u{2a6df}]|[\u{2a700}-\u{2b73f}]|[\u{2b740}-\u{2b81f}]|[\u{2b820}-\u{2ceaf}]|[\uf900-\ufaff]|[\u3300-\u33ff]|[\ufe30-\ufe4f]|[\uf900-\ufaff]|[\u{2f800}-\u{2fa1f}]/ug;
+		// "i" for ignore case for English
+		// break segment on chinese text, like breaking up words
+		var t = text
+		t = t.replace( /\s+/g , "|" )				// space segmentation
+		t = t.replace( REGEX_CHINESE , c => "|" + c + "|" )	// for chinese segmentation
+		t = t.replace( /[|][|]+/g , "|" )			// remove double pipes empty OR
+		t = t.replace( /^[|]/ , "" )				// remove first empty OR
+		t = t.replace( /[|]$/ , "" )				// remove last empty OR
+		var re = new RegExp( t , "i" )  			// "i" ignore case
+		return lookup.filter( doc => {
+			if( options.field ) doc = doc[ options.field ]
+			return re.test( JSON.stringify( doc ) )
+			} )
+	}
+
+	function actionsDOM( actions , DOMid , dist , label = "" ){
+		actions.forEach( action =>{
+			var actionDOM = document.createElement( "div" )
+			actionDOM.innerHTML = action.description
+				+ ( action.dist && dist ? 
+					" (" + ( dist == "m" ? Math.round( action.dist * 100000 ) + "m)" : Math.round( action.dist * 100 ) + "km)" ) 
+					: "" )
+				+ ( label ? " " + label : "" )
+			actionDOM.setAttribute( "url" , action.url )
+			$( DOMid ).appendChild( actionDOM )
+		} )
+	}  // actionsDOM()
+
+	// internal structural
+	var structureActions = []
+	fetch( proxy + "structural.json" ).then( r => r.json() )
+		.then( data => {
+			structurals[ latlon ] = data  // save the structural properties and actions
+
+			var address = latlon + "<br />"
+			Object.values( data.properties.address ).forEach( v => address += v + ", " )
+			$( 'address' ).innerHTML = address.slice( 0 , -2 )
+
+			// TODO private actions
+			// load using subscription
+			if( data.actions ){
+				data.actions.forEach( action => {
+					action.latlon = latlon  // for later compare
+					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
+					action.dist = 0
+					lookup.push( action )
+					structureActions.push( action )  // default structure actions
+				} )
+				actionsDOM( data.actions , 'structure' )
+			}
+
+			external()
+		} )
+
+	// external structurals
+	var neighborActions = []
+	var cityActions = []
+
+	function external(){
+		fetch( proxy + "../../c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
+			.then( data => {  // this data doesn't have action yet
+				data.forEach( feature => {
+					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
+					var natnon = nat + "," + non
+					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
+	// city
+					if( Array.isArray( feature.actions ) ){ // index city actions managed by service provider
+						feature.actions.forEach( action => {
+							action.latlon = natnon
+							action.id = natnon + "/" + action.description
+							action.dist = dist
+							lookup.push( action )
+							// TODO randomize insert
+							cityActions.push( action )
+						} )
+						actionsDOM( cityActions , 'city' , "km" ) 
+					}
+
+	// area
+					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
+
+						fetch( proxy + "../../s/" + natnon + "/structural.json" ).then( r => r.json() )
+							.then( data => {
+								structurals[ natnon ] = data  // save structural data
+
+								if( ! Array.isArray( data.actions ) ) return
+
+								data.actions.forEach( action => {
+
+									action.latlon = natnon  // for later compare
+									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
+									action.dist = dist
+	// neighbors
+									// by default accept neighborhood action less than 600m
+									// but check to see if the service is bounded
+									if( dist > 0.006 && ! ( Array.isArray( action.location ) &&
+										action.location[ 0 ][ 0 ] <= lat &&
+										action.location[ 0 ][ 1 ] <= lon &&
+										action.location[ 1 ][ 0 ] >= lat && 
+										action.location[ 1 ][ 1 ] >= lon ) ) return
+
+									lookup.push( action )
+
+									// TODO randomly insert action
+									neighborActions.push( action )
+
+								} )
+
+								// update neighbor list
+								actionsDOM( neighborActions , 'neighbor' , "m" )
+							} )
+					}
+				} )
+			} )
+	}  // external()
+
+	</script>
 
 	<style>.hpot {display:none;}
 	.start form {display:flex;flex-direction:column;align-items:center;width:100%;overflow:auto;}
@@ -57,40 +189,82 @@
 		</label></div>
 
 		<label>
-		Subject
+		<span>subject</span>
 		<div id="subject" name="subject" class="solidline"></div>
 		</label>
 
 		<label>
-		Detail
+		<span>detail</span>
 		<div id="detail" name="detail" class="solidbox"></div>
 		</label>
 
 		<label>
-		<input style="border:0;color:white;" type="submit" value="next"></input>
+		<input style="border:0;color:white;" type="submit" value="new"></input>
 		</label>
 	</form>
-	<hr style="width:100%;"/>
+	<hr style="width:98vw;"/>
 	<form method="POST" action="https://functional.limited/forms" target="_top">
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
-			<input id="_clarifynext" name="_next"></input>
-			<input id="_clarifyto" name="_to"></input>
+			<input id="_clarify_next" name="_next"></input>
+			<input id="_clarify_to" name="_to"></input>
 		</label></div>
 
 		<label>
-		Tenant
+		<span>tenant</span>
 		<input id="user" name="user" class="dottedline"></input>
 		</label>
 
 		<label>
-		Question
-		<textarea id="clarifydetail" name="detail" class="dottedbox"></textarea>
+		<span>clarify</span>
+		<textarea id="clarify" name="clarify" class="dottedbox"></textarea>
 		</label>
 
 		<label>
-		<input style="border:0;color:white;" type="submit" value="clarify"></input>
+		<span>suggest service</span>
+		</label>
+
+		<style>
+			.actions > div { 
+				border-bottom:1px solid lightgrey;
+				width:100%;flex-direction:row;
+				height:2em;justify-content:start;
+				flex-wrap:nowrap;overflow:auto; 
+				padding:0 0 0.5em 0;
+			}
+			.actions > div > div { 
+				height:1.5em;
+				margin:0.15em;
+				padding:0 1em;
+				font-size:0.75em;
+				border-right:1px solid lightgrey;
+				min-width:max-content;  /* important */
+				cursor:pointer;
+			}
+		</style>
+
+		<div id="actions" class="actions" style="width:100%;" onclick="toggleservice()">
+			<div id="structure"></div>
+			<div id="neighbor"></div>
+			<div id="city" style="border:0;"></div>
+		</div>
+		<script>
+		function toggleservice(){
+			var actionDOM = event.target
+			if( actionDOM.childNodes[0].hasChildNodes() ) return
+			if( actionDOM.style.background == "" ){
+				actionDOM.style.background = "#ae8237"
+				actionDOM.style.color = "white"
+			} else {
+				actionDOM.style.background = ""
+				actionDOM.style.color = ""
+			}
+		}
+		</script>
+
+		<label>
+		<input style="border:0;color:white;" type="submit" value="reply"></input>
 		</label>
 
 	</form>
@@ -115,8 +289,8 @@
 			$( 'subject' ).textContent = msg.subject
 			$( 'detail' ).textContent = msg.detail
 
-			$( 'user' ).textContent = msg.user
-			$( 'clarifydetail' ).textContent = msg.detail
+			$( 'user' ).value = msg.user
+			$( 'clarify' ).value = msg.detail.replace( /^/ , "> " ).replace( /\n/ , "\n> " ) + "\n"
 
 			$('_msgId').value = msgId
 			$('_token').value = p.get("token")
