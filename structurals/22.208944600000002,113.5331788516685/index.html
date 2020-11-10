@@ -346,7 +346,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	<form id="interactform" class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="openservice('add.html','request');return false">
 		<label class="rounded div" style="width:100%;flex-direction:row;padding:0 0.5em;">
 			<input autofocus id="interaction" name="interaction" type="text" placeholder="find best services or submit service request" style="height:2.5em;padding:0;text-align:center;border:0;flex-grow:1;" onkeyup="interact()">
-			<input type="submit" style="height:2em;border:0;border-radius:2em;;background:#003c2e;color:white;margin:0 0.5em;" value="➤"></input>
+			<input type="submit" style="height:2em;border:0;border-radius:2em;;background:#003c2e;color:white;margin:0 0 0 0.25em;" value="➤"></input>
 		</label>
 	</form>
 	<script>
@@ -394,7 +394,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		#pullup > * {margin:0.5em;}
 	</style>
 	<div id="miniapp" class="hide">
-		<div id="pullup" onclick="closeservice()" style="width:100%;font-size:0.75em;color:white;background:#003c2e;flex-direction:row;text-align:center;">▲</div>
+		<div id="pullup" onclick="closeservice()" style="width:100%;font-size:0.75em;color:#003e2c;flex-direction:row;text-align:center;">▲</div>
 		<iframe id="service" style="min-height:50vh;width:100%;border:0;"></iframe>
 	</div>
 	<script>
