@@ -452,10 +452,17 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	</div>
 
 	<!-- subscription -->
+	<script>
+	function subscribing(){
+		$( "subscribingto" ).value = "https://structural.city/s/" + latlon + "/;" +  			// the building page
+			"https://structural.city/s/" + latlon + "/identifier/" + $( "user" ).value + "/"	// the tenant inbox
+	}
+	</script>
 	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
-		<input required type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager"></input>
+		<input required type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager" onchange="subscribing()"></input>
 		<input required id="subscription" name="subscription" value="" autocomplete="" class="hide">
 		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
+		<input required id="subscribingto" class="hide" name="_to">
 	</form> 
 	<div class="hide" id="subscribed" style="color:#003c2e;padding:1em;text-align:center;">
 		Welcome to our building!
