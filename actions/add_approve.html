@@ -34,13 +34,22 @@
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
+	<!-- address photo -->
+	<style>
+		#photo:focus {height:100vh;}
+		#photo:focus-within {min-height:100vh;}
+	</style>
+	<div id="photo" style="background:url(../images/address.jpg) bottom;background-size:cover;font-size:small;justify-content:flex-end;" >
+		<p id="address" tabindex=1 style="margin:0;padding:0.5em;padding-top:1em;color:white;outline:none;mix-blend-mode:difference;"></p>
+	</div>
+
 	<!-- structural -->
 	<script>
 	var structurals = {}
 
 	var latlon = document.location.pathname.split('/').slice(-3)[0]
 	$( 'address' ).textContent = latlon
-	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/" : ""
+	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/" : "https://structural.city/s/" + latlon + "/"
 
 	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
 
@@ -169,13 +178,13 @@
 	<style>.hpot {display:none;}
 	.start form {display:flex;flex-direction:column;align-items:center;width:100%;overflow:auto;}
 	.start input {background:transparent;border:0px;width:100%;max-width:20em;font-family:Montserrat,sans-serif;padding:0.5em;}
-	.start .solidline {width:100%;max-width:20em;border-bottom:3px solid lightgrey;text-align:center;}
-	.start .dottedline {width:100%;max-width:20em;border-bottom:3px dotted lightgrey;text-align:center;}
+	.start .solidline {flex-grow:1;width:auto;max-width:20em;border-bottom:3px solid lightgrey;text-align:center;}
+	.start .dottedline {flex-grow:1;width:auto;max-width:20em;border-bottom:3px dotted lightgrey;text-align:center;}
 	.start form label {display:flex;flex-direction:column;align-items:center;text-align:center;width:calc( 101% - 2em );margin-bottom:0.5em;flex-wrap:wrap;}
-	.start form span {color:grey;width:100%;text-decoration:none;outline:0;font-size:0.75em;}
+	.start form span {color:grey;text-decoration:none;outline:0;font-size:0.75em;}
 	.start form label a {color:#0070c4;text-decoration:none;}
-	.start .solidbox {background:transparent;border:0;margin:0;border:3px solid lightgrey;font-family:Arial;width:100%;padding:0.5em;max-width:20em;min-height:5em;}
-	.start .dottedbox {background:transparent;border:0;margin:0;border:3px dotted lightgrey;font-family:Arial;width:100%;padding:0.5em;max-width:20em;min-height:5em;}
+	.start .solidbox {background:transparent;border:0;margin:0;border:3px solid lightgrey;font-family:Arial;width:calc( 100% - 1em );padding:0.5em;min-height:5em;}
+	.start .dottedbox {background:transparent;border:0;margin:0;border:3px dotted lightgrey;font-family:Arial;width:calc( 100% - 1em );padding:0.5em;min-height:5em;}
 	.start input[type="submit"]:disabled {background:grey;}
 	.start input[type="submit"]:enabled {background:#ae8237;}
 	</style>
@@ -184,45 +193,47 @@
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
-			<input id="_next" name="_next"></input>
+			<input name="_token" id="_token">
+			<input name="_msgId" id="_msgId">
 			<input id="_to" name="_to"></input>
+			<input id="_next" name="_next"></input>
 		</label></div>
 
-		<label>
-		<span>subject</span>
-		<div id="subject" name="subject" class="solidline"></div>
+		<label style="flex-direction:row;">
+		<span style="margin-right:1em;">subject</span>
+		<div id="subject" name="subject"></div>
 		</label>
 
 		<label>
-		<span>detail</span>
 		<div id="detail" name="detail" class="solidbox"></div>
 		</label>
 
 		<label>
-		<input style="border:0;color:white;" type="submit" value="new"></input>
+		<input style="border:0;color:white;" type="submit" value="solve"></input>
 		</label>
 	</form>
-	<hr style="width:98vw;"/>
+
+	<div style="flex-direction:row;margin-bottom:0.5em;">
+		<hr style="width:calc( 50vw - 2em );"/>
+		&nbsp;or&nbsp;
+		<hr style="width:calc( 50vw - 2em );"/>
+	</div>
+
 	<form method="POST" action="https://functional.limited/forms" target="_top">
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
-			<input id="_clarify_next" name="_next"></input>
 			<input id="_clarify_to" name="_to"></input>
+			<input id="_clarify_next" name="_next"></input>
 		</label></div>
 
-		<label>
-		<span>tenant</span>
+		<label style="flex-direction:row;">
+		<span>reply to</span>
 		<input id="user" name="user" class="dottedline"></input>
 		</label>
 
-		<label>
-		<span>clarify</span>
-		<textarea id="clarify" name="clarify" class="dottedbox"></textarea>
-		</label>
-
-		<label>
-		<span>suggest service</span>
+		<label style="flex-direction:row;">
+		<span>suggest service(s)</span>
 		</label>
 
 		<style>
@@ -264,7 +275,12 @@
 		</script>
 
 		<label>
-		<input style="border:0;color:white;" type="submit" value="reply"></input>
+		<span>message</span>
+		<textarea id="clarify" name="clarify" class="dottedbox"></textarea>
+		</label>
+
+		<label>
+		<input style="border:0;color:white;" type="submit" value="clarify"></input>
 		</label>
 
 	</form>
