@@ -108,71 +108,7 @@
 				actionsDOM( data.actions , 'structure' )
 			}
 
-			external()
 		} )
-
-	// external structurals
-	var neighborActions = []
-	var cityActions = []
-
-	function external(){
-		fetch( proxy + "../../c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
-			.then( data => {  // this data doesn't have action yet
-				data.forEach( feature => {
-					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
-					var natnon = nat + "," + non
-					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
-	// city
-					if( Array.isArray( feature.actions ) ){ // index city actions managed by service provider
-						feature.actions.forEach( action => {
-							action.latlon = natnon
-							action.id = natnon + "/" + action.description
-							action.dist = dist
-							lookup.push( action )
-							// TODO randomize insert
-							cityActions.push( action )
-						} )
-						actionsDOM( cityActions , 'city' , "km" ) 
-					}
-
-	// area
-					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
-
-						fetch( proxy + "../../s/" + natnon + "/structural.json" ).then( r => r.json() )
-							.then( data => {
-								structurals[ natnon ] = data  // save structural data
-
-								if( ! Array.isArray( data.actions ) ) return
-
-								data.actions.forEach( action => {
-
-									action.latlon = natnon  // for later compare
-									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
-									action.dist = dist
-	// neighbors
-									// by default accept neighborhood action less than 600m
-									// but check to see if the service is bounded
-									if( dist > 0.006 && ! ( Array.isArray( action.location ) &&
-										action.location[ 0 ][ 0 ] <= lat &&
-										action.location[ 0 ][ 1 ] <= lon &&
-										action.location[ 1 ][ 0 ] >= lat && 
-										action.location[ 1 ][ 1 ] >= lon ) ) return
-
-									lookup.push( action )
-
-									// TODO randomly insert action
-									neighborActions.push( action )
-
-								} )
-
-								// update neighbor list
-								actionsDOM( neighborActions , 'neighbor' , "m" )
-							} )
-					}
-				} )
-			} )
-	}  // external()
-
 	</script>
 
 	<style>.hpot {display:none;}
@@ -227,11 +163,12 @@
 			<input id="_clarify_to" name="_to"></input>
 			<input id="_clarify_next" name="_next"></input>
 			<input id="clarify_subject" name="subject"></input>
+			<input id="clarify_title" name="title"></input>
 		</label></div>
 
 		<label style="flex-direction:row;">
 		<span>reply as</span>
-		<input required type="password" id="user" name="user" class="dottedline" placeholder="your code"></input>
+		<input required type="password" id="_user" name="_user" class="dottedline" placeholder="your code"></input>
 		</label>
 
 		<label style="flex-direction:row;">
@@ -264,8 +201,6 @@
 
 		<div id="actions" class="actions" style="width:100%;" onclick="toggleservice()">
 			<div id="structure"></div>
-			<div id="neighbor"></div>
-			<div id="city" style="border:0;"></div>
 		</div>
 		<script>
 		function toggleservice(){
@@ -318,6 +253,7 @@
 			$( 'detail' ).textContent = msg.detail
 
 			$( 'clarify_subject' ).value = msg.subject
+			$( 'clarify_title' ).value = msg.subject  // for notification title
 			$( 'receiver' ).value = msg.user
 			$( 'content' ).value = msg.detail.replace( /^/ , "> " ).replace( /\n/ , "\n> " ) + "\n"
 
