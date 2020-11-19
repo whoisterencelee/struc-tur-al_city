@@ -111,37 +111,6 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	}
 	db[ dbname ].transaction( dbname ).objectStore( dbname ).index( index ).openCursor( IDBKeyRange.bound( lower , upper , true , true ) , prev ).onsuccess = func
 }
-
-	range( "inbox" , "time" , new Date() , new Date().setDate( new Date().getDate() - 14 ) , ( event ) => {
-		var cursor = event.target.result
-		if( cursor ){ 
-			console.log( cursor.value ); 
-
-			var note = cursor.value
-			var inbox = $( 'inbox' )
-			var time = document.createElement( "div" )
-			var title = document.createElement( "div" )
-			var body = document.createElement( "div" )
-			
-			time.textContent = note.time.toLocaleString()
-			title.textContent = note.title
-			body.textContent = note.body
-
-			time.className = "inbox-time"
-			title.className = "inbox-title"
-			body.className = "inbox-body"
-
-			var link = document.createElement( "a" )
-			link.href = note.data.url
-			link.appendChild( time )
-			link.appendChild( title )
-			link.appendChild( body )
-
-			inbox.appendChild( link )
-
-			cursor.continue() 
-		} else console.log( "end of cursor" )
-	})
 	</script>
 
 	<!-- header -->
@@ -450,6 +419,39 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 			<div class="inbox-body">Pinned top messages relevant to this city will be posted here</div>
 		</a>
 	</div>
+	<script>
+	range( "inbox" , "time" , new Date() , new Date().setDate( new Date().getDate() - 14 ) , ( event ) => {
+		var cursor = event.target.result
+		if( cursor ){ 
+			console.log( cursor.value ); 
+
+			var note = cursor.value
+			var inbox = $( 'inbox' )
+			var time = document.createElement( "div" )
+			var title = document.createElement( "div" )
+			var body = document.createElement( "div" )
+			
+			time.textContent = note.time.toLocaleString()
+			title.textContent = note.title
+			body.textContent = note.body
+
+			time.className = "inbox-time"
+			title.className = "inbox-title"
+			body.className = "inbox-body"
+
+			var link = document.createElement( "a" )
+			link.href = note.data.url
+			link.appendChild( time )
+			link.appendChild( title )
+			link.appendChild( body )
+
+			inbox.appendChild( link )
+
+			cursor.continue() 
+		} else console.log( "end of cursor" )
+	})
+	</script>
+
 
 	<!-- subscription -->
 	<script>
