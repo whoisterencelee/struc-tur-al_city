@@ -76,10 +76,11 @@
 	<script>
 	var p = new URLSearchParams( location.search )
 	var interaction = p.get( "interaction" )
+	var latlon = p.get( "latlon" )
 	if( interaction != null ){
 		$( 'servicestart' ).value = interaction
-		$( '_to' ).value = "https://structural.city/s/" + p.get( "latlon" ) + "/actions/add_approve.html"
-		$( '_next' ).value = "https://structural.city/s/" + p.get( "latlon" )
+		$( '_to' ).value = "https://structural.city/s/" + latlon + "/actions/assess.html"
+		$( '_next' ).value = "https://structural.city/s/" + latlon
 	}
 	$( "detail" ).focus()
 	</script>
