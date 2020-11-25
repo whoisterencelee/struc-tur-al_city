@@ -457,8 +457,8 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	<script>
 	function subscribing(){
 		$( "subscribingto" ).value = "https://structural.city/s/" + latlon + "/;"
-			+ "https://structural.city/s/" + latlon + "/actions/assess.html/_" + $( "user" ).value + "/;"
-			+ "https://structural.city/s/" + latlon + "/actions/assess_approve.html/_" + $( "user" ).value + "/;"
+			+ "https://structural.city/s/" + latlon + "/actions/assess.html/_" + $( "user" ).value + ";"
+			+ "https://structural.city/s/" + latlon + "/actions/assess_approve.html/_" + $( "user" ).value + ";"
 	}
 	</script>
 	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
