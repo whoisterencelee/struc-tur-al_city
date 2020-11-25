@@ -125,7 +125,7 @@
 	.start input[type="submit"]:enabled {background:#ae8237;}
 	</style>
 	<div class="start">
-	<form method="POST" action="https://functional.limited/tokens" target="_top">
+	<form id="acceptform" method="POST" target="_top" action="https://functional.limited/forms">
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
@@ -145,7 +145,7 @@
 		</label>
 
 		<label>
-		<input style="border:0;color:white;" type="submit" value="solve"></input>
+		<input id="accept" style="border:0;color:white;" type="submit" value="accept"></input>
 		</label>
 		
 	</form>
@@ -156,33 +156,27 @@
 		<hr style="width:calc( 50vw - 2em );"/>
 	</div>
 
-	<form method="POST" action="https://functional.limited/forms" target="_top">
+	<form id="clarifyform" method="POST" action="https://functional.limited/forms" target="_top">
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
-			<input id="_clarify_to" name="_to"></input>
-			<input id="_clarify_next" name="_next"></input>
+			<input id="clarify_to" name="_to"></input>
+			<input id="clarify_next" name="_next"></input>
 			<input id="clarify_subject" name="subject"></input>
 			<input id="clarify_title" name="title"></input>
 		</label></div>
 
 		<label style="flex-direction:row;">
-		<span>reply as</span>
-		<input required type="password" id="_user" name="_user" class="dottedline" placeholder="your code"></input>
+		<span>reply</span>
+		<input id="reply_to" name="stakeholder" class="dottedline" placeholder="direct message recipent"></input>
 		</label>
 
-		<label style="flex-direction:row;">
-		<span>reply to</span>
-		<input autocomplete="off" required id="receiver" name="receiver" class="dottedline" placeholder="tenant code"></input>
-		</label>
-
-		<label style="flex-direction:row;">
-		<span>suggest service(s)</span>
+		<label style="flex-direction:row;margin:0;">
+		<span>insert service into context</span>
 		</label>
 
 		<style>
 			.actions > div { 
-				border-bottom:1px solid lightgrey;
 				width:100%;flex-direction:row;
 				height:2em;justify-content:start;
 				flex-wrap:nowrap;overflow:auto; 
@@ -217,51 +211,127 @@
 		</script>
 
 		<label>
-		<span>message</span>
 		<textarea id="content" name="content" class="dottedbox"></textarea>
 		</label>
 
 		<script>
 		function clarifysubmit(){
-			$( "_clarify_to" ).value = "https://structural.city/s/" + latlon + "/" 
+			if( ( "stakeholder" ).value && p.get( "directmessage" ) ){
+				$( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // to stakeholder
+			} else {
+				$( 'clarify_to' ).value = s + "/actions/assess_approve.html"  // anonymous to manager
+			}
 		}
 		</script>
+		<label style="flex-direction:row;">
+		<span>reply as</span>
+		<input required id="reply_as" name="_user" class="dottedline" placeholder="your code" type="password"></input>
+		</label>
+
 		<label>
-		<input style="border:0;color:white;" type="submit" value="clarify" onclick="clarifysubmit();false"></input>
+		<input id="clarify" style="border:0;color:white;" type="submit" value="clarify"></input>
 		</label>
 
 	</form>
 	</div>
+	<!-- NICE -->
 	<script>
+	var pathname = location.protocol == "file:" ? location.pathname.replace( /.*\/struc-tur-al_city/ , "" ) : location.pathname
 	var p = new URLSearchParams( location.search )
+	var s = "https://structural.city/s/" + latlon
 
+	// passing input from outside
 	var interaction = p.get( "interaction" )
-	if( interaction != null ){
-		$( 'servicestart' ).value = interaction
-		$( '_to' ).value = "https://structural.city/s/" + p.get( "latlon" ) + "/actions/add_approve.html"
-		$( '_next' ).value = "https://structural.city/s/" + p.get( "latlon" )
-	}
+	if( interaction != null ) $( 'servicestart' ).value = interaction
 
+	// input message
 	var msgId = p.get( "msgId" )
 	if( msgId != null ){
-		var pathname = location.protocol == "file:" ? location.pathname.replace( /.*\/struc-tur-al_city/ , "" ) : location.pathname
 
-		fetch( 'https://functional.limited/msgs/structural.city' + pathname + '/' + msgId ).then( res => {
-		res.json().then( msg =>{
+		fetch( 'https://functional.limited/msgs/structural.city' + pathname + '/' + msgId ).then( res => { res.json().then( msg =>{
+
+			console.log( res ) 
 
 			$( 'subject' ).textContent = msg.subject
 			$( 'detail' ).textContent = msg.detail
 
-			$( 'clarify_subject' ).value = msg.subject
-			$( 'clarify_title' ).value = msg.subject  // for notification title
-			$( 'receiver' ).value = msg.user
-			$( 'content' ).value = msg.detail.replace( /^/ , "> " ).replace( /\n/ , "\n> " ) + "\n"
+			$( '_msgId' ).value = msgId
+			
+			var stakeholder = msg.user
 
-			$('_msgId').value = msgId
-			$('_token').value = p.get("token")
-			console.log( res ) 
-			})
-		})
+			// below refer to
+			// message/process state machine see NICE design
+			// anonymous/stakeholder iterative machine see NICE design
+
+	// accept
+
+			var token = p.get( "token" )
+			if( token != null ){  // has token
+		// anyone with a token can make metric change 
+				$( 'acceptform' ).action = "https://functional.limited/tokens"
+				$( '_token' ).value = token
+				$( '_to' ).value = s + "/data/metrics.json/update_metrics.js"
+				$( '_next' ).value = s + "?status=thanks"
+				$( 'accept' ).disabled = false
+
+			} else if( stakeholder ){  
+		// manager does real world action and ask stakeholder for approve
+				$( 'acceptform' ).action = "https://functional.limited/forms"
+				$( '_to' ).value = s + "/actions/assess_approve.html/_" + stakeholder  // notify stakeholder
+				$( '_next' ).value = s + "?status=replied"
+				$( 'accept' ).disabled = false
+
+			} else if( msg.stakeholder ){
+		// manager does real world action and ask original stakeholder for approval
+				$( 'acceptform' ).action = "https://functional.limited/forms"
+				$( '_to' ).value = s + "/actions/assess_approve.html/_" + msg.stakeholder  // prior stakeholder
+				$( '_next' ).value = s + "?status=replied"
+				$( 'accept' ).disabled = false
+			} else {
+		// tenant just wants to accept manager's clarification
+				$( 'acceptform' ).onsubmit = function(){
+					$( 'clarifyform' ).click()
+					return false
+				}
+			}  // accept
+
+
+	// clarify
+
+			if( typeof stakeholder == undefined ){
+		// tenant received manager message
+				$( 'clarify_to' ).value = s + "/actions/assess.html"  // send reply to manager(s)
+				$( 'reply_to').style.display = "none"
+				$( 'reply_as' ).name = "user"  // storing stakeholder in new msg
+				$( 'reply_as' ).value = msg.stakeholder  // prior stakeholder might be in message
+
+			} else if( stakeholder ){
+		// manager received tenant message 
+				$( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // send reply to stakeholder
+				$( 'reply_to' ).value = stakeholder
+				$( 'reply_as' ).name = "_user"  // IMPORTANT make sure manager code is not stored
+
+			} else if( stakeholder == "" ){
+		// manager received anonymous message
+				$( 'clarify_to' ).value = s + "/actions/assess.html"  // send reply to other managers
+				$( 'reply_as' ).name = "_user"  // IMPORTANT make sure manager code is not stored
+
+			}  // clarify 
+
+			// other parameters for message building
+			$( 'clarify_subject' ).value = msg.subject
+			$( 'clarify_title' ).value = msg.subject  // for notification
+			$( 'content' ).value = msg.detail.replace( /^/ , "> " ).replace( /\n/ , "\n> " ) + "\n"
+			$( 'clarify_next' ).value = s + "?status=replied"
+			
+			$( 'clarify' ).disabled = false
+		}) })
+
+	}  // msgId
+
+	function stakeholderHandler( stakeholder ){
+		$( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // sending message to stakeholder
+		$( 'reply_to' ).value = stakeholder
 	}
 
 	$( "detail" ).focus()
