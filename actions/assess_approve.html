@@ -137,11 +137,11 @@
 
 		<label style="flex-direction:row;">
 		<span style="margin-right:1em;">subject</span>
-		<div id="subject" name="subject"></div>
+		<input readonly="readyonly" id="subject" name="subject"></input>
 		</label>
 
 		<label>
-		<div id="detail" name="detail" class="solidbox"></div>
+		<textarea readonly="readonly" id="detail" name="detail" class="solidbox"></textarea>
 		</label>
 
 		<label>
@@ -252,8 +252,8 @@
 
 			console.log( res ) 
 
-			$( 'subject' ).textContent = msg.subject
-			$( 'detail' ).textContent = msg.detail
+			$( 'subject' ).value = msg.subject
+			$( 'detail' ).value = msg.detail
 
 			$( '_msgId' ).value = msgId
 			
