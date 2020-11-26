@@ -129,19 +129,21 @@
 
 		<div class="hpot"><label>
 			<input name="_gotcha"></input>
-			<input name="_token" id="_token">
-			<input name="_msgId" id="_msgId">
+			<input name="_token" id="_token"></input>
+			<input name="_msgId" id="_msgId"></input>
+			<input name="msgId" id="msgId"></input><!-- make msghash more unique -->
 			<input id="_to" name="_to"></input>
+			<input id="to" name="to"></input><!-- make msghash more unique -->
 			<input id="_next" name="_next"></input>
 		</label></div>
 
 		<label style="flex-direction:row;">
 		<span style="margin-right:1em;">subject</span>
-		<input readonly="readyonly" id="subject" name="subject"></input>
+		<input required readonly="readyonly" id="subject" name="subject"></input>
 		</label>
 
 		<label>
-		<textarea readonly="readonly" id="detail" name="detail" class="solidbox"></textarea>
+		<textarea required readonly="readonly" id="detail" name="detail" class="solidbox"></textarea>
 		</label>
 
 		<label>
@@ -256,6 +258,7 @@
 			$( 'detail' ).value = msg.detail
 
 			$( '_msgId' ).value = msgId
+			$( 'msgId' ).value = msgId
 			
 			var stakeholder = msg.user
 
@@ -278,6 +281,7 @@
 		// manager does real world action and ask stakeholder for approve
 				$( 'acceptform' ).action = "https://functional.limited/forms"
 				$( '_to' ).value = s + "/actions/assess_approve.html/_" + stakeholder  // notify stakeholder
+				$( 'to' ).value = s + "/actions/assess_approve.html/_" + stakeholder  // notify stakeholder
 				$( '_next' ).value = s + "?status=replied"
 				$( 'accept' ).disabled = false
 
@@ -285,6 +289,7 @@
 		// manager does real world action and ask original stakeholder for approval
 				$( 'acceptform' ).action = "https://functional.limited/forms"
 				$( '_to' ).value = s + "/actions/assess_approve.html/_" + msg.stakeholder  // prior stakeholder
+				$( 'to' ).value = s + "/actions/assess_approve.html/_" + msg.stakeholder  // prior stakeholder
 				$( '_next' ).value = s + "?status=replied"
 				$( 'accept' ).disabled = false
 			} else {
