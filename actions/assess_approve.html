@@ -139,11 +139,11 @@
 
 		<label style="flex-direction:row;">
 		<span style="margin-right:1em;">subject</span>
-		<input required readonly="readyonly" id="subject" name="subject"></input>
+		<input required readonly="readyonly" id="subject" name="title"></input>
 		</label>
 
 		<label>
-		<textarea required readonly="readonly" id="detail" name="detail" class="solidbox"></textarea>
+		<textarea required readonly="readonly" id="content" name="content" class="solidbox"></textarea>
 		</label>
 
 		<label>
@@ -164,7 +164,6 @@
 			<input name="_gotcha"></input>
 			<input id="clarify_to" name="_to"></input>
 			<input id="clarify_next" name="_next"></input>
-			<input id="clarify_subject" name="subject"></input>
 			<input id="clarify_title" name="title"></input>
 		</label></div>
 
@@ -213,7 +212,7 @@
 		</script>
 
 		<label>
-		<textarea id="content" name="content" class="dottedbox"></textarea>
+		<textarea id="clarify_content" name="content" class="dottedbox"></textarea>
 		</label>
 
 		<script>
@@ -254,8 +253,8 @@
 
 			console.log( res ) 
 
-			$( 'subject' ).value = msg.subject
-			$( 'detail' ).value = msg.detail
+			$( 'subject' ).value = msg.title
+			$( 'content' ).value = msg.content
 
 			$( '_msgId' ).value = msgId
 			$( 'msgId' ).value = msgId
@@ -308,7 +307,7 @@
 				$( 'clarify_to' ).value = s + "/actions/assess.html"  // send reply to manager(s)
 				$( 'reply_to').style.display = "none"
 				$( 'reply_as' ).name = "user"  // storing stakeholder in new msg
-				$( 'reply_as' ).value = msg.stakeholder  // prior stakeholder might be in message
+				$( 'reply_as' ).value = msg.stakeholder == undefined ? "" : msg.stakeholder  // prior stakeholder might be in message
 
 			} else if( stakeholder ){
 		// manager received tenant message 
@@ -324,9 +323,8 @@
 			}  // clarify 
 
 			// other parameters for message building
-			$( 'clarify_subject' ).value = msg.subject
-			$( 'clarify_title' ).value = msg.subject  // for notification
-			$( 'content' ).value = msg.detail.replace( /^/ , "> " ).replace( /\n/ , "\n> " ) + "\n"
+			$( 'clarify_title' ).value = msg.title
+			$( 'clarify_content' ).value = msg.content.replace( /^/ , "> " ).replace( /\n/ , "\n> " ) + "\n"
 			$( 'clarify_next' ).value = s + "?status=replied"
 			
 			$( 'clarify' ).disabled = false

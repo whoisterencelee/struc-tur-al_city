@@ -54,12 +54,12 @@
 		</label></div>
 
 		<label>
-		<input id="servicestart" name="subject" required></input>
+		<input id="servicestart" name="title" required></input>
 		</label>
 
 		<label>
 		<span style="font-size:0.75em;">Please tell us more</span>
-		<textarea autofocus id="detail" name="detail" placeholder="who, what, when, where, why, how" required></textarea>
+		<textarea autofocus id="content" name="content" placeholder="who, what, when, where, why, how" required></textarea>
 		</label>
 
 		<label>
@@ -82,7 +82,7 @@
 		$( '_to' ).value = "https://structural.city/s/" + latlon + "/actions/assess.html"
 		$( '_next' ).value = "https://structural.city/s/" + latlon
 	}
-	$( "detail" ).focus()
+	$( "content" ).focus()
 	</script>
 
 </body>
