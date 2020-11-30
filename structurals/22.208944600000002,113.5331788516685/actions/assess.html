@@ -215,22 +215,19 @@
 		<textarea id="clarify_content" name="content" class="dottedbox"></textarea>
 		</label>
 
-		<script>
-		function clarifysubmit(){
-			if( ( "stakeholder" ).value && p.get( "directmessage" ) ){
-				$( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // to stakeholder
-			} else {
-				$( 'clarify_to' ).value = s + "/actions/assess_approve.html"  // anonymous to manager
-			}
-		}
-		</script>
 		<label style="flex-direction:row;">
 		<span>reply as</span>
-		<input required id="reply_as" name="_user" class="dottedline" placeholder="your code" type="password"></input>
+		<input id="reply_as" name="_user" class="dottedline" placeholder="your code" type="password"></input>
 		</label>
 
+		<script>
+		function anonymous(){
+			if( ( "stakeholder" ).value ) $( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // to stakeholder
+			else $( 'clarify_to' ).value = s + "/actions/assess_approve.html"  // anonymous to manager
+		}
+		</script>
 		<label>
-		<input id="clarify" style="border:0;color:white;" type="submit" value="clarify"></input>
+		<input id="clarify" style="border:0;color:white;" type="submit" value="clarify" onclick="anonymous()"></input>
 		</label>
 
 	</form>

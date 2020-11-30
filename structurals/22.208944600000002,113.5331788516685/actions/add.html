@@ -68,8 +68,14 @@
 		<span>optional - to receive response, otherwise anonymous</span>
 		</label>
 
+		<script>
+		function anonymous(){
+			if( $( 'user' ) ) $( '_to' ).value = "https://structural.city/s/" + latlon + "/actions/assess.html"
+			else $( '_to' ).value = "https://structural.city/s/" + latlon + "/actions/assess_approve.html"
+		}
+		</script>
 		<label>
-		<input style="border:0;color:white;" type="submit" value="send"></input>
+		<input style="border:0;color:white;" type="submit" value="send" onclick="anonymous()"></input>
 		</label>
 	</form>
 	</div>
