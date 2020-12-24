@@ -364,7 +364,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	</style>
 	<div id="miniapp" class="hide">
 		<div id="pullup" onclick="closeservice()" style="width:100%;font-size:0.75em;color:#003e2c;flex-direction:row;text-align:center;">▲</div>
-		<iframe id="service" style="min-height:50vh;width:100%;border:0;"></iframe>
+		<iframe id="service" style="flex:1;width:100%;border:0;"></iframe>
 	</div>
 	<script>
 	function closeservice(){
@@ -382,6 +382,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		serviceDOM.onload = function(){ 
 			serviceDOM.style.display = "block"
 			$( "miniapp" ).style.display = "flex"
+			$( "miniapp" ).style.flex = "1"
 			try{
 			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
 			var servicestart = iframedoc.getElementById( 'servicestart' )
