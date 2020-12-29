@@ -41,12 +41,14 @@
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
 	<!-- header -->
-	<div class="float" style="align-self:center;max-width:640px;width:95vw;">
-		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
-			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
-				<span style="margin:.5em .25em .5em 0.75em;cursor:pointer;">structural.city</span>
-				<span style="margin:.5em 0.75em .5em 0;cursor:pointer;">創構城市</span> 
-				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Search 搜索" onchange="typeLocate()">
+	<div class="float" style="align-self:center;max-width:640px;width:96vw;">
+
+		<form class="div" style="flex-direction:row;width:100%;background:#003c2e;color:white;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
+			<div style="flex-direction:row;cursor:pointer;padding:0 0.5em;">
+				Structural.City&nbsp;<wbr>創構城市</wbr>
+			</div>
+			<label style="display:flex;box-shadow:1px 1px 3px grey;flex-grow:1;">
+				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Address 地址" onchange="typeLocate()">
 			</label>
 		</form>
 
@@ -63,6 +65,11 @@
 
 		<div id="list" style="background:rgba(255,255,255,1.0);box-shadow:1px 1px 3px grey;width:100%;max-height:42vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
 			<div id="callback" class="list-item">
+
+			<span>從底層建起智慧城市</span>
+			<span>Smartcity from the ground up</span>
+			<span>&nbsp;</span>
+			<span>輸入地址 <u>或</u> 按地圖正中 <span style="color:#003c2e;">&#8962;</span></span>
 			<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
 			</div>
 		</div>
@@ -342,7 +349,7 @@ $( 'accept_notification' ).checked = false  // default
 	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
 		minZoom: 2,
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors | Macau government <a href="https://www.fdct.gov.mo/download/information/Approved/2019ASC.pdf">FDCT.gov.mo</a> project'
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> | 澳門政府智慧城市科研獲批項目 <a href="https://www.fdct.gov.mo/download/information/Approved/2019ASC.pdf">FDCT.gov.mo</a>'
 		}).addTo( map )
 
 
