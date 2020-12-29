@@ -39,10 +39,14 @@
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
 	<!-- header -->
-	<div class="float" style="max-width:24em;width:85vw;right:0;">
-		<form style="width:100%;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
-			<label style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px grey;">
-				<span style="margin:.5em 1em;cursor:pointer;">structural.city/s/approve</span> 
+	<div class="float" style="align-self:center;max-width:640px;width:96vw;">
+
+		<form class="div" style="flex-direction:row;width:100%;background:#003c2e;color:white;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
+			<div style="flex-direction:row;cursor:pointer;padding:0 0.5em;">
+				Structural.City&nbsp;<wbr>創構城市</wbr>
+			</div>
+			<label style="display:flex;box-shadow:1px 1px 3px grey;flex-grow:1;">
+				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Address 地址" onchange="typeLocate()">
 			</label>
 		</form>
 
@@ -358,12 +362,12 @@ $( 'accept_notification' ).checked = false  // default
 	<div style="position:fixed;top:calc(50vh - 1em);left:calc(50vw - 0.3em);font-size:2em;z-index:9999;color:#003c2e;cursor:pointer;" onclick="clickLocate()">&#8962;</div>
 
 	<script>
-	var map = L.map('map').setView( [22.1860638, 113.556844] , 13 );
+	var map = L.map('map' , { zoomControl: false } ).setView( [22.1860638, 113.556844] , 13 );
 
 	var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
 		minZoom: 2,
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | supported by <a href="http://www.fdct.gov.mo">FDCT.gov.mo</a>'
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> | 澳門政府智慧城市科研獲批項目 <a href="https://www.fdct.gov.mo/download/information/Approved/2019ASC.pdf">FDCT.gov.mo</a>'
 		}).addTo( map )
 
 
