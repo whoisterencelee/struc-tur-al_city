@@ -37,6 +37,7 @@
 	input[type=text]{border:0px;padding:.5em 1em;}
 	input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
 	.float {position:fixed;z-index:99999;}
+	a {color:#003c2e;}
 	</style>
 	<script>$=(i=>document.getElementById(i)||{})</script>
 
@@ -45,7 +46,7 @@
 
 		<form class="div" style="flex-direction:row;width:100%;background:#003c2e;color:white;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
 			<div style="flex-direction:row;cursor:pointer;padding:0 0.5em;">
-				Structural.City&nbsp;<wbr>創構城市</wbr>
+				<span style="color:gold;">Structural.</span>City&nbsp;<wbr><span style="color:gold;">創構</span>城市</wbr>
 			</div>
 			<label style="display:flex;box-shadow:1px 1px 3px grey;flex-grow:1;">
 				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Address 地址" onchange="typeLocate()">
@@ -54,7 +55,7 @@
 
 
 		<style>
-		.list-item { justify-content:left;padding:1em;border-bottom:solid 1px grey;width:100%;font-size:0.8em; }
+		.list-item { justify-content:left;padding:1em;border-bottom:solid 1px grey;width:100%;font-size:0.8em;align-items:start; }
 		.list-item div { flex-direction:row;width:100%;justify-content:space-between;flex-wrap:nowrap;}
 		.list-item div span { font-size:xx-small;flex-shrink:0; }
 		.list-item p { font-size:small;flex-shrink:0;}
@@ -65,12 +66,19 @@
 
 		<div id="list" style="background:rgba(255,255,255,1.0);box-shadow:1px 1px 3px grey;width:100%;max-height:42vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
 			<div id="callback" class="list-item">
+				<div>
+					<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
+					<span>輸入地址 <u>或</u> 按地圖正中 <span style="font-size:1em;color:#003c2e;">&#8962;</span></span>
+				</div>
 
-			<span>從底層建起智慧城市</span>
-			<span>Smartcity from the ground up</span>
-			<span>&nbsp;</span>
-			<span>輸入地址 <u>或</u> 按地圖正中 <span style="color:#003c2e;">&#8962;</span></span>
-			<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
+				<div>
+					<a href="intro.html">
+						<span>Building smartcity from the ground up</span>
+					</a>
+					<a href="intro-zh.html">
+						<span>如何從底層建起智慧城市</span>
+					</a>
+				</div>
 			</div>
 		</div>
 		
@@ -243,10 +251,7 @@ $( 'accept_notification' ).checked = false  // default
 		var addressDOM = "<div class='list-item'" + " lon='" + lon + "' lat='" + lat + "'>"
 			+ "<div>" + latlon + "</div>"
 
-		Object.entries( address ).forEach( kv => {
-			if( kv[ 0 ] == "country_code" ) return
-			addressDOM += "<div>" + kv[ 1 ] + "<span>" + kv[ 0 ] + "</span></div>" 
-		})
+		addressDOM += Object.values( address ).join( "," )
 
 		// link
 		if( structurals[ latlon ] ) addressDOM += "<a class='enter unselectable' href='./s/" + latlon + page + "'>actively managed - enter</a>" 
