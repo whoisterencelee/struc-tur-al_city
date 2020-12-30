@@ -46,7 +46,7 @@
 
 		<form class="div" style="flex-direction:row;width:100%;background:#003c2e;color:white;box-shadow:1px 1px 3px grey;margin:3px 0;" onsubmit="return false">
 			<div style="flex-direction:row;cursor:pointer;padding:0 0.5em;">
-				<span style="color:gold;">Structural.</span>City&nbsp;<wbr><span style="color:gold;">創構</span>城市</wbr>
+				<span style="color:gold;">Structural.</span>City&nbsp;<wbr><span style="color:gold;">塑造</span>城市</wbr>
 			</div>
 			<label style="display:flex;box-shadow:1px 1px 3px grey;flex-grow:1;">
 				<input id="location" style="flex-grow:1;" size="12" autofocus name="buid" type="text" placeholder="Address 地址" onchange="typeLocate()">
@@ -65,17 +65,19 @@
 		</style>
 
 		<div id="list" style="background:rgba(255,255,255,1.0);box-shadow:1px 1px 3px grey;width:100%;max-height:42vh;overflow-y:auto;overflow-wrap:anywhere;justify-content:flex-start;flex-direction:row;" onclick="selectLocate()">
-			<div id="callback" class="list-item">
-				<div>
+			<div id="callback" class="list-item" style="align-items:center;padding:.25em 1em 1em 1em;">
+				<div style="margin-bottom:1em;">
 					<span>input exact location <u>or</u> press center <span style="color:#003c2e;">&#8962;</span></span>
 					<span>輸入地址 <u>或</u> 按地圖正中 <span style="font-size:1em;color:#003c2e;">&#8962;</span></span>
 				</div>
 
+				<iframe src="https://www.youtube.com/embed/QjhJYvUm7dw" frameborder="0" allow="encrypted-media;" allowfullscreen></iframe>
+
 				<div>
-					<a href="intro.html">
+					<a>
 						<span>Building smartcity from the ground up</span>
 					</a>
-					<a href="intro-zh.html">
+					<a>
 						<span>如何從底層建起智慧城市</span>
 					</a>
 				</div>
