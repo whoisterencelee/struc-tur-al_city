@@ -1,0 +1,590 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title>structural.city</title>
+  <meta name="description" content="smart city for everyone">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <meta name="referrer" content="no-referrer-when-downgrade"><!-- important https://web.dev/referrer-best-practices/ -->
+  <meta name="theme-color" content="#003c2e">
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
+
+</head>
+
+<body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;">
+  <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+	<style>
+	div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.hide {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	.unselectable {-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	.rounded input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
+	.rounded input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
+	.float { position:fixed;z-index:99999;}
+	</style>
+	<script>$=(i=>document.getElementById(i)||{})</script>
+
+	<script>
+// https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+var pathname = /\/$/.test( location.pathname ) ? location.pathname + "index.html" : location.pathname
+var dbschemas = {} 
+dbschemas[ "inbox" ] = { version : 1 , keyPath : "n" , autoIncrement : true , indices : [ 'time' ] }  // sort later based on url
+dbschemas[ pathname ] = { version : 1 }  // storing page specific information, e.g. subscription
+
+var db = {}
+function openDb( dbname , func ) {
+	console.log("openDb ...")
+	var req = indexedDB.open( dbname , dbschemas[ dbname ].version )
+	req.onsuccess = function (evt) {
+		// Equal to: db = req.result;
+		db[ dbname ] = this.result;
+		console.log("openDb DONE");
+		if( func ) func()
+	}
+	req.onerror = function (evt) {
+		console.error("openDb:", evt.target.errorCode);
+	}
+	req.onupgradeneeded = function (evt) {
+		console.log("openDb.onupgradeneeded");
+		var objstore = evt.currentTarget.result.createObjectStore(
+				dbname , dbschemas[ dbname ] 
+				//dbname , { keyPath : dbschemas[ dbname ].keyPath } );
+				//dbname , { keyPath: 'id', autoIncrement: true });
+		)
+		if( Array.isArray( dbschemas[ dbname ].indices ) ) dbschemas[ dbname ].indices.forEach( index => objstore.createIndex( index , index , { unique: false }) )
+		// unique = false allow insert of same key
+	}
+}
+
+function store( dbname , data , func = ( stored ) => console.log( "stored " + JSON.stringify( stored ) ) ){
+	try{
+	if( !db[ dbname ] ) openDb( dbname , () => store( dbname , data , func ) )
+	else{
+		if( dbschemas[ dbname ].keyPath ){ 	// data = object
+			var dbreq = db[ dbname ].transaction( dbname , 'readwrite' ).objectStore( dbname ).put( data )
+			dbreq.onsuccess = ( evt ) => {
+				data[ dbschemas[ dbname ].keyPath ] = evt.target.result  // save the index into the returned obj
+				func( data )
+			}
+			dbreq.onerror = ( evt ) => console.log( evt )
+		} else {				// data = [ key , value ]
+			var dbreq = db[ dbname ].transaction( dbname , 'readwrite' ).objectStore( dbname ).put( data[ 1 ] , data[ 0 ] )
+			dbreq.onsuccess = ( evt ) => {
+				data.push( evt.target.result ) // [ key , value , result ]
+				func( data )
+			}
+			dbreq.onerror = ( evt ) => console.log( evt )
+		}
+	} // end of else
+	} catch( e ){
+		// TODO need to handle full storage
+		console.log( e + " : problem storing : " + JSON.stringify( data ) )
+		func( data )  // forgiving if cannot store still move on
+	}
+}
+// var test = { time : new Date() }; store( "inbox" , test )
+
+function read( dbname , index = db[ dbname ].keyPath , key , func = ( event ) => console.log( event.target.result ) ){
+	if( !db[ dbname ] ) openDb( dbname , () => read( dbname , index , key , func ) )
+	else if( index === null ) db[ dbname ].transaction( dbname , 'readonly' ).objectStore( dbname ).get( key ).onsuccess = func
+	else db[ dbname ].transaction( dbname , 'readonly' ).objectStore( dbname ).index( index ).get( key ).onsuccess = func
+}
+// read( "inbox" , null , 1 ) // autoincrement starts at 1
+
+function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = ( event ) => console.log( event.target.result.value ) ){
+	if( !db[ dbname ] ) return openDb( dbname , () => range( dbname , index , lower , upper , func ) )
+	if( upper < lower ){  // descending order
+		var temp = upper
+		upper = lower
+		lower = temp
+		var prev = "prev"
+	}
+	db[ dbname ].transaction( dbname ).objectStore( dbname ).index( index ).openCursor( IDBKeyRange.bound( lower , upper , true , true ) , prev ).onsuccess = func
+}
+	</script>
+
+	<!-- header -->
+	<div class="float" style="max-width:24em;right:0;">
+		<a href="https://structural.city" style="text-decoration:none;">
+		<div style="width:100%;background:#003c2e;color:white;display:flex;box-shadow:1px 1px 3px black;">
+			<span style="margin:.25em 1em;font-size:0.7em;" onclick="">structural.city</span> 
+		</div>
+		</a>
+	</div>
+
+	<!-- address photo -->
+	<style>
+		#photo:focus {height:100vh;}
+		#photo:focus-within {min-height:100vh;}
+	</style>
+	<div id="photo" style="background:url(images/address.jpg) bottom;background-size:cover;font-size:small;justify-content:flex-end;" >
+		<p id="address" tabindex=1 style="margin:0;padding:0.5em;padding-top:1em;color:white;outline:none;mix-blend-mode:difference;"></p>
+	</div>
+
+
+	<!-- structural -->
+	<script>
+	var structurals = {}
+
+	var latlon = document.location.pathname.split('/').slice(-2)[0]
+	$( 'address' ).textContent = latlon
+	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/" : ""
+
+	var lat = parseFloat( latlon.split( ',' )[ 0 ] ) , lon = parseFloat( latlon.split( ',' )[ 1 ] )
+
+	var lookup = []
+
+	function search( text , options ){
+		const REGEX_CHINESE = /[\u4e00-\u9fff]|[\u3400-\u4dbf]|[\u{20000}-\u{2a6df}]|[\u{2a700}-\u{2b73f}]|[\u{2b740}-\u{2b81f}]|[\u{2b820}-\u{2ceaf}]|[\uf900-\ufaff]|[\u3300-\u33ff]|[\ufe30-\ufe4f]|[\uf900-\ufaff]|[\u{2f800}-\u{2fa1f}]/ug;
+		// "i" for ignore case for English
+		// break segment on chinese text, like breaking up words
+		var t = text
+		t = t.replace( /\s+/g , "|" )				// space segmentation
+		t = t.replace( REGEX_CHINESE , c => "|" + c + "|" )	// for chinese segmentation
+		t = t.replace( /[|][|]+/g , "|" )			// remove double pipes empty OR
+		t = t.replace( /^[|]/ , "" )				// remove first empty OR
+		t = t.replace( /[|]$/ , "" )				// remove last empty OR
+		var re = new RegExp( t , "i" )  			// "i" ignore case
+		return lookup.filter( doc => {
+			if( options.field ) doc = doc[ options.field ]
+			return re.test( JSON.stringify( doc ) )
+			} )
+	}
+
+	function actionsDOM( actions , DOMid , dist , label = "" ){
+		actions.forEach( action =>{
+			var actionDOM = document.createElement( "div" )
+			actionDOM.innerHTML = action.description
+				+ ( action.dist && dist ? 
+					" (" + ( dist == "m" ? Math.round( action.dist * 100000 ) + "m)" : Math.round( action.dist * 100 ) + "km)" ) 
+					: "" )
+				+ ( label ? " " + label : "" )
+			actionDOM.setAttribute( "url" , action.url )
+			$( DOMid ).appendChild( actionDOM )
+		} )
+	}  // actionsDOM()
+
+	// internal structural
+	var structureActions = []
+	fetch( proxy + "structural.json" ).then( r => r.json() )
+		.then( data => {
+			structurals[ latlon ] = data  // save the structural properties and actions
+
+			var address = latlon + "<br />"
+			Object.values( data.properties.address ).forEach( v => address += v + ", " )
+			$( 'address' ).innerHTML = address.slice( 0 , -2 )
+
+			// TODO private actions
+			// load using subscription
+			if( data.actions ){
+				data.actions.forEach( action => {
+					action.latlon = latlon  // for later compare
+					action.id = latlon + "/" + action.description  // must be unique to allow index remove and update
+					action.dist = 0
+					lookup.push( action )
+					structureActions.push( action )  // default structure actions
+				} )
+				actionsDOM( data.actions , 'structure' )
+			}
+
+			external()
+		} )
+
+	// external structurals
+	var neighborActions = []
+	var cityActions = []
+
+	function external(){
+		fetch( proxy + "../../c/" + Math.floor( lat ) + "," + Math.floor( lon ) ).then( r => r.json() )
+			.then( data => {  // this data doesn't have action yet
+				data.forEach( feature => {
+					var non = feature.geometry.coordinates[ 0 ] , nat = feature.geometry.coordinates[ 1 ]
+					var natnon = nat + "," + non
+					var dist = Math.abs( lat - nat ) + Math.abs( lon - non )
+	// city
+					if( Array.isArray( feature.actions ) ){ // index city actions managed by service provider
+						feature.actions.forEach( action => {
+							action.latlon = natnon
+							action.id = natnon + "/" + action.description
+							action.dist = dist
+							lookup.push( action )
+							// TODO randomize insert
+							cityActions.push( action )
+						} )
+						actionsDOM( cityActions , 'city' , "km" ) 
+					}
+
+	// area
+					if( dist < 0.02 && ( non != lon && nat != lat ) ){  // less than 2/100 of a degrees or ~2.2km
+
+						fetch( proxy + "../../s/" + natnon + "/structural.json" ).then( r => r.json() )
+							.then( data => {
+								structurals[ natnon ] = data  // save structural data
+
+								if( ! Array.isArray( data.actions ) ) return
+
+								data.actions.forEach( action => {
+
+									action.latlon = natnon  // for later compare
+									action.id = natnon + "/" + action.description  // must be unique to allow index remove and update
+									action.dist = dist
+	// neighbors
+									// by default accept neighborhood action less than 600m
+									// but check to see if the service is bounded
+									if( dist > 0.006 && ! ( Array.isArray( action.location ) &&
+										action.location[ 0 ][ 0 ] <= lat &&
+										action.location[ 0 ][ 1 ] <= lon &&
+										action.location[ 1 ][ 0 ] >= lat && 
+										action.location[ 1 ][ 1 ] >= lon ) ) return
+
+									lookup.push( action )
+
+									// TODO randomly insert action
+									neighborActions.push( action )
+
+								} )
+
+								// update neighbor list
+								actionsDOM( neighborActions , 'neighbor' , "m" )
+							} )
+					}
+				} )
+			} )
+	}  // external()
+
+	</script>
+
+	<!-- footer 
+	<div style="background:#003c2e;color:#b29f88;padding:1em 0 0.5em 0;text-align:center;text-shadow:1px 1px 3px black;width:100%;">
+
+		<div style="flex-direction:row;width:100%;justify-content:space-evenly;">
+			<div style="flex-direction:row;">
+			<img style="height:6em;margin:0.5em;" src="./structural.svg" />
+			<div>
+			<div style="font-size:1.8em;">Structural.City</div>
+			<div style="font-size:3em;">城市結構</div>
+			</div>
+			</div>
+
+			<div>
+			<div style="font-size:1.25em;">智能城市物業管理</div>
+			<div style="font-size:1em;">Smart Urban Property Management</div>
+			</div>
+		</div>
+
+	</div>
+	-->
+	<style>
+		.actions > div { 
+			border-bottom:1px solid lightgrey;
+			width:100%;flex-direction:row;
+			height:2em;justify-content:start;
+			flex-wrap:nowrap;overflow:auto; 
+			padding:0 0 0.5em 0;
+		}
+		.actions > div > div { 
+			height:1.5em;
+			margin:0.15em;
+			padding:0 1em;
+			font-size:0.75em;
+			border-right:1px solid lightgrey;
+			min-width:max-content;  /* important */
+			cursor:pointer;
+		}
+	</style>
+
+	<div id="actions" class="actions" onclick="openservice()">
+		<div id="structure"><!-- structure -->
+		</div>
+		<div id="neighbor"><!-- neighbor -->
+		</div>
+		<div id="city" style="border:0;"><!-- city -->
+		</div>
+	</div>
+
+	<form id="interactform" class="div" style="width:100%;flex-direction:row;margin-bottom:0.5em;" onsubmit="openservice('add.html','request');return false">
+		<label class="rounded div" style="width:100%;flex-direction:row;padding:0 0.5em;">
+			<input autofocus id="interaction" name="interaction" type="text" placeholder="find best services or submit service request" style="height:2.5em;padding:0;text-align:center;border:0;flex-grow:1;" onkeyup="interact()">
+			<input type="submit" style="height:2em;width:2em;border:0;border-radius:2em;;background:#003c2e;color:white;margin:0 0 0 0.25em;" value="➤"></input>
+		</label>
+	</form>
+	<script>
+	function interact( term ){
+		term = term ? term : event.currentTarget.value
+		if( term == "" ){
+			$('structure').innerHTML = ""
+			$('neighbor').innerHTML = ""
+			$('city').innerHTML = ""
+			actionsDOM( structureActions , 'structure' )
+			actionsDOM( neighborActions , 'neighbor' , "m" )
+			actionsDOM( cityActions , 'city' , "km" )
+			return
+		}
+		var result = search( term , { field : 'description' } )
+		var result_structure = [] , result_neighbors = [] , result_city = []
+
+		result.forEach( r => {
+			var action = r
+			if( action.latlon == latlon ) result_structure.push( action )
+			else if ( ( ! Array.isArray( action.location ) ) || (  // if not bounded
+				action.location[ 0 ][ 0 ] <= lat &&  // check if bounded
+				action.location[ 0 ][ 1 ] <= lon &&
+				action.location[ 1 ][ 0 ] >= lat && 
+				action.location[ 1 ][ 1 ] >= lon
+			) ) {
+				if( action.dist <= 0.02 ) result_neighbors.push( action )
+				else result_city.push( action )
+			}
+		} )
+
+		// display services
+		$('structure').innerHTML = ""
+		$('neighbor').innerHTML = ""
+		$('city').innerHTML = ""
+		actionsDOM( result_structure , 'structure' , null ) 
+		actionsDOM( result_neighbors , 'neighbor' , "m" )
+		actionsDOM( result_city , 'city' , "km" )
+	}
+	</script>
+
+
+	<!-- services -->
+	<style>
+		#pullup > * {margin:0.5em;}
+	</style>
+	<div id="miniapp" class="hide">
+		<div id="pullup" onclick="closeservice()" style="width:100%;font-size:0.75em;color:#003e2c;flex-direction:row;text-align:center;">▲</div>
+		<iframe id="service" style="flex:1;width:100%;border:0;"></iframe>
+	</div>
+	<script>
+	function closeservice(){
+		$( "miniapp" ).style.display = ""
+		$( "actions" ).style.display = ""
+		$( "interactform" ).style.display = ""
+		$( "interaction").focus()
+	}
+	function openservice( url , title ){
+		url = url ? url : event.target.getAttribute( "url" )
+		if( !url ) return
+		$( "interactform" ).style.display = "none"
+		$( "actions" ).style.display = "none"
+		var serviceDOM = $( 'service' )
+		serviceDOM.onload = function(){ 
+			serviceDOM.style.display = "block"
+			$( "miniapp" ).style.display = "flex"
+			try{
+			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
+			var servicestart = iframedoc.getElementById( 'servicestart' )
+			if( servicestart ) servicestart.focus()
+			} catch( e ){}
+		}
+		serviceDOM.src = proxy + "actions/" + url + "?"
+			+ "interaction=" + encodeURIComponent( $( 'interaction' ).value ) + "&"
+			+ "latlon=" + encodeURIComponent( latlon ) + "&"
+	}
+	</script>
+
+	<!-- inbox -->
+	<style>
+	#inbox > * {width:100%;background:white;display:flex;flex-wrap:wrap;text-decoration:none;color:black;font-size:0.8em;justify-content:space-between;margin-bottom:0.5em;word-break:break-all;}
+	#inbox > * > * {margin:0.5em;}
+	#inbox .inbox-time {color:grey;}
+	#inbox .inbox-title {color:#003c2e;}
+	#inbox .inbox-body {flex-grow:1;align-content:flex-end;}
+	</style>
+	<div id="inbox" style="margin:0.5em;">
+		<a href="https://structural.city/s/22.203155799999998,113.54169088665458/index.html">
+			<div class="inbox-time">10/9/2020, 12:10:49 PM</div>
+			<div class="inbox-title">welcome </div>
+			<div class="inbox-body">Pinned top messages relevant to this property will be posted here</div>
+		</a>
+		<a href="https://structural.city/s/22.203155799999998,113.54169088665458/index.html">
+			<div class="inbox-time">10/9/2020, 12:10:49 PM</div>
+			<div class="inbox-title">welcome </div>
+			<div class="inbox-body">Pinned top messages relevant to this neighborhood will be posted here</div>
+		</a>
+		<a href="https://structural.city/s/22.203155799999998,113.54169088665458/index.html">
+			<div class="inbox-time">10/9/2020, 12:10:49 PM</div>
+			<div class="inbox-title">welcome </div>
+			<div class="inbox-body">Pinned top messages relevant to this city will be posted here</div>
+		</a>
+	</div>
+	<script>
+	range( "inbox" , "time" , new Date() , new Date().setDate( new Date().getDate() - 14 ) , ( event ) => {
+		var cursor = event.target.result
+		if( cursor ){ 
+			console.log( cursor.value ); 
+
+			var note = cursor.value
+			var inbox = $( 'inbox' )
+			var time = document.createElement( "div" )
+			var title = document.createElement( "div" )
+			var body = document.createElement( "div" )
+			
+			time.textContent = note.time.toLocaleString()
+			title.textContent = note.title
+			body.textContent = note.body
+
+			time.className = "inbox-time"
+			title.className = "inbox-title"
+			body.className = "inbox-body"
+
+			var link = document.createElement( "a" )
+			link.href = note.data.url
+			link.appendChild( time )
+			link.appendChild( title )
+			link.appendChild( body )
+
+			inbox.appendChild( link )
+
+			cursor.continue() 
+		} else console.log( "end of cursor" )
+	})
+	</script>
+
+
+	<!-- subscription -->
+	<script>
+	function subscribing(){
+		$( "subscribingto" ).value = "https://structural.city/s/" + latlon + "/;"
+			+ "https://structural.city/s/" + latlon + "/actions/assess.html/_" + $( "user" ).value + ";"
+			+ "https://structural.city/s/" + latlon + "/actions/assess_approve.html/_" + $( "user" ).value + ";"
+	}
+	</script>
+	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
+		<input type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager" onchange="subscribing()"></input>
+		<input required id="subscription" name="subscription" value="" autocomplete="" class="hide">
+		<input id="subscribe-submit" type="submit" value="sign up" style="padding:1em;border:0;background:#003c2e;color:white;">
+		<input required id="subscribingto" class="hide" name="_to">
+	</form> 
+	<div class="hide" id="subscribed" style="color:#003c2e;padding:1em;text-align:center;">
+		Welcome to our building!
+	</div>
+	<script>
+	read( pathname , null , "subscription" , function( event ){ if( event.target.result ) $( "subscribe" ).style.display = "none" } )
+	var u = new URLSearchParams( location.search )
+	if( u.get( "subscribed" ) != null ){
+		$( "subscribed" ).style.display = "flex"
+		$( "subscribe" ).style.display = "none"
+		store( pathname , [ "subscription" , true ] ) 
+	}
+	</script>
+	<script>
+if( 'serviceWorker' in navigator ){  // serviceWorker check
+    navigator.serviceWorker.register('/service_worker.js').then( function() {
+	console.log('Successfully registered service worker')
+	// maybe better to put getpush in here since there might be an existing worker from a not yet closed tab
+	// calling the register will update the worker first
+	
+	// This function is needed because Chrome doesn't accept a base64 encoded string
+	// as value for applicationServerKey in pushManager.subscribe yet
+	// https://bugs.chromium.org/p/chromium/issues/detail?id=802280
+	function urlBase64ToUint8Array(base64String) {
+		var padding = '='.repeat((4 - base64String.length % 4) % 4);
+		var base64 = (base64String + padding)
+			.replace(/\-/g, '+')
+			.replace(/_/g, '/')
+			.replace(/\n/g, '')
+			.replace(/\r/g, '')
+
+		var rawData = window.atob(base64);
+		var outputArray = new Uint8Array(rawData.length);
+
+		for (var i = 0; i < rawData.length; ++i) {
+			outputArray[i] = rawData.charCodeAt(i);
+		}
+		return outputArray;
+	}
+
+	function getpush(){
+		// get push subscription, require notification support
+		navigator.serviceWorker.ready.then( function( reg ) {
+
+			return reg.pushManager.getSubscription().then( async function( sub ){
+
+				const response = await fetch('/vapid.txt' , { headers : { 'Content-Type' : 'text/plain' } } )
+				const vapidPublicKey = await response.text()
+				const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey)
+
+				if( sub ){
+					if( sub.options && sub.options.applicationServerKey && 
+						new Uint8Array( sub.options.applicationServerKey ).toString() != convertedVapidKey.toString() ){
+						sub.unsubscribe()  // there is an old VAPID Key, need to unsubscribe first
+					}else return sub  // already correctly subscribed
+				}
+
+				return reg.pushManager.subscribe({
+					userVisibleOnly : true ,
+					applicationServerKey : convertedVapidKey
+					})
+			})
+
+		}).then( function( sub ){
+			$('subscription').value = JSON.stringify( sub )
+			$('user').disabled = ""
+			$('user').focus()
+			// do not use fetch as need to use cross domain, use form instead
+		} , function( error ){
+			alert( "push notification setup error : " + error.toString() )
+
+		})
+	}
+
+	// notification support, need to put this behind a user event
+	$('user').onclick=()=>{
+		$('user').disabled = "disabled"
+		if( !( "Notification" in window ) ) alert( "Notification is required for this page, try a different browser" )
+		else if( Notification.permission !== "granted" ) Notification.requestPermission( ( p ) => {   // change to check not granted, as there is 'default' and 'denied'
+				if( p !== "granted" ) alert( "Notification is required for this page, try a different browser" )
+				else getpush()
+			} )
+		else if( Notification.permission === "granted" ) getpush()
+	}
+
+    }).catch( function(err) { alert('Error whilst registering service worker ' + err) })
+} else alert( 'Service worker is required for this page, try a different browser' )
+// End of serviceworker register
+	</script>
+
+
+	<!--
+
+	<style>
+	#hotlist {flex-grow:1;flex-direction:row;justify-content:center;padding:0 1vw;}
+	div.solution {width:90vw;height:90vh;max-width:320px;max-height:calc( 320px + 8em );margin:1vw;box-shadow:0px 0px 5px 0px lightgrey;flex-wrap:nowrap;justify-content:space-between;background:white;} /* compose of two main sections visual (varying height) and content (height fixed at 8em) */
+	div.solution_temp {width:90vw;height:90vh;max-width:320px;max-height:calc( 320px + 8em );margin:1vw;box-shadow:0px 0px 5px 0px lightgrey;flex-wrap:nowrap;justify-content:center;background:white;text-align:center;color:grey;} /* basically same as solution */
+
+	div.solution div.visual {width:100%;height:calc(100% - 8em);overflow:hidden;justify-content:center;align-content:center;} /* center image */
+	div.solution div.visual img {width:100%;height:100%;object-fit:cover;} /* ensure image will fill up the horizontal space, tested on firefox, chrome */
+
+	div.solution div.content {flex-grow:1;flex-wrap:nowrap;width:calc(100% - 1em);padding:0.5em;justify-content:space-between;align-items:start;} /* no wrap, fill up the width but account for padding */
+
+	div.solution div.content div {overflow:hidden;align-items:start;text-overflow:ellipsis;}
+	div.solution div.content div.description {color:#0070c4;font-size:1.2em;}
+	div.solution div.content div.need {color:#4eadb8;}
+	div.solution div.content div.need {min-height:1.2em;}
+	div.solution div.content div.certified {white-space:nowrap;font-size:0.75em;color:grey;align-self:flex-end;min-height:1.2em;}
+	</style>
+	-->
+
+
+<!-- hot list -->
+<div id="hotlist">
+	<script>
+	function toggle(){var c=event.currentTarget.parentNode.childNodes,cl=c.length;while(cl--){if(c[cl].style&&c[cl].style.display){if(c[cl]!=event.currentTarget)c[cl].style.display=''}}event.currentTarget.style.display='none'}
+	</script>
+</div>
+
+</body>
+
+</html>
