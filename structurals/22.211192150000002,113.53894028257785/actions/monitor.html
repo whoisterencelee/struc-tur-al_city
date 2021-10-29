@@ -75,20 +75,23 @@
 		} )
 	}
 
-	lookup = []
-	fetch( proxy + "@eui-00137a1000013f72" ).then( r => r.json() ).then( data =>{
-		try{
-		var entry = { 
-			device : data.end_device_ids.device_id ,
-			received : new Date( data.received_at ).toString() ,
-			payload : JSON.stringify( data.uplink_message.decoded_payload ) ,
-			signal_to_noise_ratio : data.uplink_message.rx_metadata[ 0 ].snr ,
-			data : JSON.stringify( data )
-		}
-		lookup.push( entry )
-		buildlist( lookup )
-		}catch( e ){ console.log( "failed to parse buildlist entry" ) }
-	})
+	var sensors = [ "@eui-00137a100000cb45" , "@eui-00137a100000cb48" , "@eui-00137a100000cb44", "@eui-00137a100000cb46" , "@eui-00137a1000013f72" , "@eui-00137a1000013fce" , "@eui-00137a1000013fd0" ]
+	var lookup = []
+	sensors.forEach( sensor => {
+		fetch( proxy + sensor ).then( r => r.json() ).then( data =>{
+			try{
+			var entry = { 
+				device : data.end_device_ids.device_id ,
+				received : new Date( data.received_at ).toString() ,
+				payload : JSON.stringify( data.uplink_message.decoded_payload ) ,
+				signal_to_noise_ratio : data.uplink_message.rx_metadata[ 0 ].snr ,
+				data : JSON.stringify( data )
+			}
+			lookup.push( entry )
+			buildlist( lookup )
+			}catch( e ){ console.log( "failed to parse buildlist entry" ) }
+		})
+	} )
 
 	function search( text ){
 		const REGEX_CHINESE = /[\u4e00-\u9fff]|[\u3400-\u4dbf]|[\u{20000}-\u{2a6df}]|[\u{2a700}-\u{2b73f}]|[\u{2b740}-\u{2b81f}]|[\u{2b820}-\u{2ceaf}]|[\uf900-\ufaff]|[\u3300-\u33ff]|[\ufe30-\ufe4f]|[\uf900-\ufaff]|[\u{2f800}-\u{2fa1f}]/ug;
@@ -104,6 +107,5 @@
 		return lookup.filter( b => re.test( JSON.stringify( b ) ) )
 	}
 	</script>
-
 </body>
 </html>
