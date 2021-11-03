@@ -37,9 +37,12 @@
 
 	<style>
 		#list {justify-content:start;flex-wrap:nowrap;overflow:scroll;background:white;}
-		#list > div { font-size:0.5em;width:100%; }
+		#list > div { font-size:1em;width:100%;border-bottom:2px solid; }
 		#list > div > div {flex-direction:row;width:100%;justify-content:start;border-bottom:1px solid lightgrey;}
 		#list > div > div > div {display:block;margin-left:1em;}
+		
+		#list > div > div > .list_data {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+		#list > div:focus > div > div {display:block;}
 
 		/*
 		#list > div > :nth-child(1) {width:2em;}
@@ -79,6 +82,7 @@
 		$( 'list' ).innerHTML = ""
 		lu.forEach( l => {
 			var row = document.createElement( "div" )
+			row.setAttribute( "tabindex" , "1" )  // for pseudo css focus open
 			Object.entries( l ).forEach( t => {
 				var subrow = document.createElement( "div" )
 				var cell = document.createElement( "div" )
@@ -86,6 +90,7 @@
 				subrow.appendChild( cell )
 				var cell = document.createElement( "div" )
 				var value = t[ 1 ]
+				cell.className = "list_" + t[ 0 ]  // styling
 				if( typeof value == "object" ) value = JSON.stringify( value )
 				cell.textContent = value
 				subrow.appendChild( cell )
