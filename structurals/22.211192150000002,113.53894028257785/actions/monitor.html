@@ -55,6 +55,26 @@
 	var latlon = document.location.pathname.split('/').slice(-3)[0]
 	var proxy = "https://functional.limited" + "/msgs/structural.city/s/" + latlon + "/ttn/"
 
+	function ago( nanosec ){
+		var diff = Math.floor( ( new Date().getTime() - nanosec ) / 1000 ) , // no need to parse string nanosec to number if we start statement with a number
+		    day_diff = Math.floor( diff / 86400 );
+
+		if ( isNaN(diff) ) return nanosec
+		// http://ejohn.org/files/pretty.js
+
+		return day_diff == 0 && (
+				diff < 60 && "just now" ||                                                                                                                                    diff < 120 && "1 minute ago" ||
+				diff < 3600 && Math.floor( diff / 60 ) + " minutes ago" ||
+				diff < 7200 && "1 hour ago" ||
+				diff < 86400 && Math.floor( diff / 3600 ) + " hours ago") ||
+			day_diff == 1 && "Yesterday" ||
+			day_diff + " days ago";
+		/*
+		   day_diff < 7 && day_diff + " days ago" ||
+		   day_diff < 31 && Math.ceil( day_diff / 7 ) + " weeks ago";
+		 */
+	}
+
 	function buildlist( lu ){
 		$( 'list' ).innerHTML = ""
 		lu.forEach( l => {
@@ -82,7 +102,7 @@
 			try{
 			var entry = { 
 				device : data.end_device_ids.device_id ,
-				received : new Date( data.received_at ).toString() ,
+				received : ago( new Date( data.received_at ).getTime() ),
 				payload : JSON.stringify( data.uplink_message.decoded_payload ) ,
 				signal_to_noise_ratio : data.uplink_message.rx_metadata[ 0 ].snr ,
 				data : JSON.stringify( data )
