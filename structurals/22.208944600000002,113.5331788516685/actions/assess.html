@@ -222,7 +222,7 @@
 
 		<script>
 		function anonymous(){
-			if( ( "stakeholder" ).value ) $( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // change reply to new stakeholder
+			if( $( "stakeholder" ).value ) $( 'clarify_to' ).value = s + "/actions/assess.html/_" + $("stakeholder" ).value  // change reply to new stakeholder
 			else $( 'clarify_to' ).value = s + "/actions/assess_approve.html"  // anonymous to manager
 		}
 		</script>
@@ -256,7 +256,7 @@
 			$( '_msgId' ).value = msgId
 			$( 'msgId' ).value = msgId
 			
-			var stakeholder = msg.stakeholder
+			var stakeholder = msg.user
 
 			// below refer to
 			// message/process state machine see NICE design

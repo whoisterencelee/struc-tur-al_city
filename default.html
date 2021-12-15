@@ -476,6 +476,7 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	if( u.get( "subscribed" ) != null ){
 		$( "subscribed" ).style.display = "flex"
 		$( "subscribe" ).style.display = "none"
+		// store( pathname , [ "subscription" , u.get( "subscribed" ) ] )  // security risk
 		store( pathname , [ "subscription" , true ] ) 
 	}
 	</script>
