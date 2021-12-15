@@ -382,7 +382,6 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		serviceDOM.onload = function(){ 
 			serviceDOM.style.display = "block"
 			$( "miniapp" ).style.display = "flex"
-			$( "miniapp" ).style.flex = "1"
 			try{
 			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
 			var servicestart = iframedoc.getElementById( 'servicestart' )

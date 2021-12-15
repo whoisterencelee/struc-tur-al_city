@@ -1,0 +1,88 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title>structural.city</title>
+  <meta name="description" content="smart city for everyone">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <meta name="referrer" content="no-referrer-when-downgrade"><!-- important https://web.dev/referrer-best-practices/ -->
+  <meta name="theme-color" content="#003c2e">
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
+
+</head>
+
+<body style="background:#e3e4e1;font-family:'Noto Serif TC',sans-serif;margin:0;height:100vh;display:flex;flex-direction:column;" onload="$('servicestart').focus()">
+  <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+	<style>
+	div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.div {display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;}
+	.hide {display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	.unselectable {-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+	.rounded input[type=text]{-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius:2em;border:0px;padding:0.5em 0;text-align:center;}
+	.rounded input[type=text]:focus {outline:none;border:1px solid ##b29f88;}
+	.float { position:fixed;z-index:99999;}
+	</style>
+	<script>$=(i=>document.getElementById(i)||{})</script>
+
+
+	<style>
+		#locations {justify-content:start;flex-wrap:nowrap;overflow:scroll;background:white;}
+		#locations > div {flex-direction:row;width:100%;justify-content:start;border-bottom:1px solid lightgrey;}
+		#locations > div > div {width:8em;}
+		#locations > div > :nth-child(1) {width:2em;}
+		#locations > div > :nth-child(2) {width:4em;}
+		#locations > div > :last-child {flex-grow:1;align-items:start;}
+	</style>
+	<input id="servicestart" onkeyup="buildlocations( search( event.target.value ) )" placeholder="find unit                " style="text-align:center;min-height:2.5em;border:0;border-bottom:1px solid black;"></input>
+	<div id="locations">
+	</div>
+	<script>
+	var lookup
+	var latlon = document.location.pathname.split('/').slice(-3)[0]
+	var proxy = location.protocol == "file:" ? "https://functional.limited/s/" + latlon + "/actions/" : ""
+
+	function buildlocations( lu ){
+		$( 'locations' ).innerHTML = ""
+		lu.forEach( l => {
+			var row = document.createElement( "div" )
+			l.forEach( t => {
+				var cell = document.createElement( "div" )
+				cell.textContent = t
+				row.appendChild( cell )
+			} )
+			$( 'locations' ).appendChild( row )
+		} )
+	}
+
+	fetch( proxy + "../data/lookup.json" ).then( r => r.json() ).then( data =>{
+		lookup = data 
+		buildlocations( lookup )
+	})
+
+	function search( text ){
+		const REGEX_CHINESE = /[\u4e00-\u9fff]|[\u3400-\u4dbf]|[\u{20000}-\u{2a6df}]|[\u{2a700}-\u{2b73f}]|[\u{2b740}-\u{2b81f}]|[\u{2b820}-\u{2ceaf}]|[\uf900-\ufaff]|[\u3300-\u33ff]|[\ufe30-\ufe4f]|[\uf900-\ufaff]|[\u{2f800}-\u{2fa1f}]/ug;
+		// "i" for ignore case for English
+		// break segment on chinese text, like breaking up words
+		var t = text
+		t = t.replace( /\s+/g , "|" )				// space segmentation
+		t = t.replace( REGEX_CHINESE , c => "|" + c + "|" )	// for chinese segmentation
+		t = t.replace( /[|][|]+/g , "|" )			// remove double pipes empty OR
+		t = t.replace( /^[|]/ , "" )				// remove first empty OR
+		t = t.replace( /[|]$/ , "" )				// remove last empty OR
+		var re = new RegExp( t , "i" )  			// "i" ignore case
+		return lookup.filter( b => b.reduce( ( a , c ) => re.test( c.toString() ) || a , false ) )
+	}
+	</script>
+
+</body>
+</html>

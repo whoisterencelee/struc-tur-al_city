@@ -382,7 +382,6 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 		serviceDOM.onload = function(){ 
 			serviceDOM.style.display = "block"
 			$( "miniapp" ).style.display = "flex"
-			$( "miniapp" ).style.flex = "1"
 			try{
 			var iframedoc = serviceDOM.contentWindow ? serviceDOM.contentWindow.document : serviceDOM.contentDocument
 			var servicestart = iframedoc.getElementById( 'servicestart' )
@@ -463,9 +462,9 @@ function range( dbname , index = db[ dbname ].keyPath , lower , upper , func = (
 	}
 	</script>
 	<form class="div" id="subscribe" style="width:auto;flex-direction:row;" method="POST" action="https://functional.limited/subscribe" name="subscribe">
-		<input required type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager" onchange="subscribing()"></input>
+		<input type="password" id="user" name="user" autocomplete="" style="flex-grow:1;max-width:20em;padding:1em;text-align:center;border:0;" placeholder="tenant code from property manager" onchange="subscribing()"></input>
 		<input required id="subscription" name="subscription" value="" autocomplete="" class="hide">
-		<input id="subscribe-submit" type="submit" value="move in" style="padding:1em;border:0;background:#003c2e;color:white;">
+		<input id="subscribe-submit" type="submit" value="sign up" style="padding:1em;border:0;background:#003c2e;color:white;">
 		<input required id="subscribingto" class="hide" name="_to">
 	</form> 
 	<div class="hide" id="subscribed" style="color:#003c2e;padding:1em;text-align:center;">

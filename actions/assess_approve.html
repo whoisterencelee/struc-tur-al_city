@@ -222,7 +222,7 @@
 
 		<script>
 		function anonymous(){
-			if( ( "stakeholder" ).value ) $( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // to stakeholder
+			if( ( "stakeholder" ).value ) $( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // change reply to new stakeholder
 			else $( 'clarify_to' ).value = s + "/actions/assess_approve.html"  // anonymous to manager
 		}
 		</script>
@@ -329,12 +329,7 @@
 
 	}  // msgId
 
-	function stakeholderHandler( stakeholder ){
-		$( 'clarify_to' ).value = s + "/actions/assess.html/_" + stakeholder  // sending message to stakeholder
-		$( 'reply_to' ).value = stakeholder
-	}
-
-	$( "detail" ).focus()
+	//$( "detail" ).focus()
 	</script>
 
 </body>
