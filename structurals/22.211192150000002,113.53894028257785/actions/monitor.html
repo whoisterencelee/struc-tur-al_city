@@ -53,6 +53,8 @@
 	<input id="servicestart" onkeyup="buildlist( search( event.target.value ) )" placeholder="find" style="width:100%;text-align:center;min-height:2.5em;border:0;border-bottom:1px solid black;"></input>
 	<div id="list">
 	</div>
+
+	<script src="sensors.js"></script>
 	<script>
 	var lookup
 	var latlon = document.location.pathname.split('/').slice(-3)[0]
@@ -100,7 +102,10 @@
 		} )
 	}
 
-	var sensors = [ "@eui-00137a100000cb45" , "@eui-00137a100000cb48" , "@eui-00137a100000cb44", "@eui-00137a100000cb46" , "@eui-00137a1000013f72" , "@eui-00137a1000013fce" , "@eui-00137a1000013fd0" ]
+	if( !sensors ){
+		console.log( "sensor.js not loaded" )
+		sensors = []
+	}
 	var lookup = []
 	sensors.forEach( sensor => {
 		fetch( proxy + sensor ).then( r => r.json() ).then( data =>{
@@ -126,7 +131,7 @@
 		t = t.replace( /\s+/g , "|" )				// space segmentation
 		t = t.replace( REGEX_CHINESE , c => "|" + c + "|" )	// for chinese segmentation
 		t = t.replace( /[|][|]+/g , "|" )			// remove double pipes empty OR
-		t = t.replace( /^[|]/ , "" )				// remove first empty OR
+	t = t.replace( /^[|]/ , "" )				// remove first empty OR
 		t = t.replace( /[|]$/ , "" )				// remove last empty OR
 		var re = new RegExp( t , "i" )  			// "i" ignore case
 		return lookup.filter( b => re.test( JSON.stringify( b ) ) )
