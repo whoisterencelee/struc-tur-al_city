@@ -1,0 +1,25 @@
+version: '3'
+services:
+  database:
+    restart: always
+    image: 'mongo'
+    container_name: 'mongodb-container'
+    environment:
+      - MONGO_INITDB_DATABASE=structuralcity
+      - MONGO_INITDB_ROOT_USERNAME=macau
+      - MONGO_INITDB_ROOT_PASSWORD=macau
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./data:/data/db
+    ports:
+      - '27017-27019:27017-27019'
+
+  api:
+    hostname: structural-city
+    restart: always
+    image: 'mateuslimati/structural-city'
+    container_name: structural-city-api
+    depends_on:
+      - database
+    volumes:
+      - ./configuration.cfg:/app/configuration.cfg:ro
